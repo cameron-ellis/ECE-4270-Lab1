@@ -305,6 +305,59 @@ void load_program() {
 /************************************************************/
 void handle_instruction()
 {
+	//need to find address ourselves
+	uint32_t instruction = mem_read_32(addr);
+	uint32_t opcode = (instruction << 25) >> 25;
+	uint32_t rd = (instruction << 20) >> 27;
+	uint32_t f3 = (instruction << 17) >> 29;
+	uint32_t rs1 = (instruction << 12) >> 27;
+	uint32_t rs2 = (instruction << 7) >> 27;
+	uint32_t f7 = instruction >> 25;
+
+	switch(opcode){
+		case 51:		//R-type
+			switch(f3){
+				case 0:
+					switch(f7){
+						case 0:		//add
+							break;
+						case 32:	//sub
+							break;
+						default:
+							break;
+						}	
+				case 6: 			//or
+					break;
+				case 7:				//and
+					break;
+				default:
+					break;
+				} 			
+//		case 19:		//I
+		case 3:			//I-type loads
+			switch(f3){
+				case 2:	
+					break;			//load word
+				default:
+					break;
+			}
+		case 35:		//S
+			switch(f3){
+				case 2:				//store word
+					break;
+				default:
+					break;
+			}
+//		case 99:		//B
+//		case 111:		//jal
+//		case 103:		//jalr
+		default:
+			break;
+	}
+	
+	
+	//to reset program, CURRENT_STATE.PC =  MEM_TEXT_BEGIN;???????
+
 	/*IMPLEMENT THIS*/
 	/* execute one instruction at a time. Use/update CURRENT_STATE and and NEXT_STATE, as necessary.*/
 }
@@ -334,18 +387,66 @@ void print_program(){
 	}
 }
 
-//add r1, r2, r3
-//r1=r2+r3
+
 
 /************************************************************/
 /* Print the instruction at given memory address (in RISCV assembly format)    */
 /************************************************************/
 void print_instruction(uint32_t addr){
 	uint32_t instruction = mem_read_32(addr);
-	printf("%x\n", data);
-	//CURRENT_STATE.PC =  MEM_TEXT_BEGIN;???????
-	//access directly CURRENT_STATE.PC
-	/*IMPLEMENT THIS*/
+	//printf("%x\n", instruction);
+	
+	uint32_t opcode = (instruction << 25) >> 25;
+	uint32_t rd = (instruction << 20) >> 27;
+	uint32_t f3 = (instruction << 17) >> 29;
+	uint32_t rs1 = (instruction << 12) >> 27;
+	uint32_t rs2 = (instruction << 7) >> 27;
+	uint32_t f7 = instruction >> 25;
+
+	switch(opcode){
+		case 51:		//R-type
+			switch(f3){
+				case 0:
+					switch(f7){
+						case 0:		//add
+							break;
+						case 32:	//sub
+							break;
+						default:
+							break;
+						}	
+				case 6: 			//or
+					break;
+				case 7:				//and
+					break;
+				default:
+					break;
+				} 			
+//		case 19:		//I
+		case 3:			//I-type loads
+			switch(f3){
+				case 2:	
+					break;			//load word
+				default:
+					break;
+			}
+		case 35:		//S
+			switch(f3){
+				case 2:				//store word
+					break;
+				default:
+					break;
+			}
+//		case 99:		//B
+//		case 111:		//jal
+//		case 103:		//jalr
+		default:
+			break;
+	}
+
+	//should output something like this
+	//add r1, r2, r3
+
 }
 
 /***************************************************************/
