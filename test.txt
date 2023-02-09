@@ -1,0 +1,17 @@
+To prepare working:
+git pull
+--This updates YOUR directory with the most current version.
+
+To update the repository with your changes:
+
+git status
+--This shows you what you've changed.
+
+git add [filename]
+--This will add what you want to push.
+
+git commit
+--will pull up a text editor (prob nano) and lets you type your change comments. Save the file to prepare the commit.
+
+git push
+--This finally pushes your changes to the repository. Put in your github username and the token you generated. NOT your actual password.
