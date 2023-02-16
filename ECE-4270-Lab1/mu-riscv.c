@@ -300,6 +300,34 @@ void load_program() {
 	fclose(fp);
 }
 
+void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) {
+
+}
+
+void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+
+}
+
+void Iimm_Processing() {
+	// hi
+}
+
+void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+
+}
+
+void B_Processing() {
+	// hi
+}
+
+void J_Processing() {
+	// hi
+}
+
+void U_Processing() {
+	// hi
+}
+
 /************************************************************/
 /* decode and execute instruction                                                                     */ 
 /************************************************************/
@@ -308,49 +336,39 @@ void handle_instruction()
 	//need to find address ourselves
 	uint32_t instruction = mem_read_32(addr);
 	uint32_t opcode = (instruction << 25) >> 25;
-	uint32_t rd = (instruction << 20) >> 27;
-	uint32_t f3 = (instruction << 17) >> 29;
-	uint32_t rs1 = (instruction << 12) >> 27;
-	uint32_t rs2 = (instruction << 7) >> 27;
-	uint32_t f7 = instruction >> 25;
-
+	
 	switch(opcode){
 		case 51:		//R-type
-			switch(f3){
-				case 0:
-					switch(f7){
-						case 0:		//add
-							break;
-						case 32:	//sub
-							break;
-						default:
-							break;
-						}	
-				case 6: 			//or
-					break;
-				case 7:				//and
-					break;
-				default:
-					break;
-				} 			
-//		case 19:		//I
+			uint32_t rd = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t rs2 = (instruction << 7) >> 27;
+			uint32_t f7 = instruction >> 25;
+			R_Processing(rd, f3, rs1, rs2, f7);			
+		case 19:		//I
+			uint32_t rd = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t imm = instruction >> 20;
+			Iimm_Processing();
 		case 3:			//I-type loads
-			switch(f3){
-				case 2:	
-					break;			//load word
-				default:
-					break;
-			}
+			uint32_t rd = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t imm = instruction >> 20; 		
+			ILoad_Processing(rd, f3, rs1, imm);
 		case 35:		//S
-			switch(f3){
-				case 2:				//store word
-					break;
-				default:
-					break;
-			}
-//		case 99:		//B
-//		case 111:		//jal
-//		case 103:		//jalr
+			uint32_t imm4 = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t rs2 = (instruction << 7) >> 27;
+			uint32_t imm11 = instruction >> 25;
+			S_Processing(imm4, f3, rs1, rs2, imm11);
+		case 99:		//B
+		B_Processing();
+		case 111:		//jal
+		J_Processing();
+		case 103:		//jalr
 		default:
 			break;
 	}
@@ -388,6 +406,33 @@ void print_program(){
 }
 
 
+void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) {
+
+}
+
+void ILoad_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+
+}
+
+void Iimm_Print() {
+	// hi
+}
+
+void S_Print(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+
+}
+
+void B_Print() {
+	// hi
+}
+
+void J_Print() {
+	// hi
+}
+
+void U_Print() {
+	// hi
+}
 
 /************************************************************/
 /* Print the instruction at given memory address (in RISCV assembly format)    */
@@ -396,50 +441,42 @@ void print_instruction(uint32_t addr){
 	uint32_t instruction = mem_read_32(addr);
 	//printf("%x\n", instruction);
 	
+	//need to find address ourselves
+	uint32_t instruction = mem_read_32(addr);
 	uint32_t opcode = (instruction << 25) >> 25;
-	uint32_t rd = (instruction << 20) >> 27;
-	uint32_t f3 = (instruction << 17) >> 29;
-	uint32_t rs1 = (instruction << 12) >> 27;
-	uint32_t rs2 = (instruction << 7) >> 27;
-	uint32_t f7 = instruction >> 25;
-
+	
 	switch(opcode){
 		case 51:		//R-type
-			switch(f3){
-				case 0:
-					switch(f7){
-						case 0:		//add
-							break;
-						case 32:	//sub
-							break;
-						default:
-							break;
-						}	
-				case 6: 			//or
-					break;
-				case 7:				//and
-					break;
-				default:
-					break;
-				} 			
-//		case 19:		//I
+			uint32_t rd = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t rs2 = (instruction << 7) >> 27;
+			uint32_t f7 = instruction >> 25;
+			R_Print(rd, f3, rs1, rs2, f7);			
+		case 19:		//I
+			uint32_t rd = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t imm = instruction >> 20;
+			Iimm_Print();
 		case 3:			//I-type loads
-			switch(f3){
-				case 2:	
-					break;			//load word
-				default:
-					break;
-			}
+			uint32_t rd = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t imm = instruction >> 20; 		
+			ILoad_Print(rd, f3, rs1, imm);
 		case 35:		//S
-			switch(f3){
-				case 2:				//store word
-					break;
-				default:
-					break;
-			}
-//		case 99:		//B
-//		case 111:		//jal
-//		case 103:		//jalr
+			uint32_t imm4 = (instruction << 20) >> 27;
+			uint32_t f3 = (instruction << 17) >> 29;
+			uint32_t rs1 = (instruction << 12) >> 27;
+			uint32_t rs2 = (instruction << 7) >> 27;
+			uint32_t imm11 = instruction >> 25;
+			S_Print(imm4, f3, rs1, rs2, imm11);
+		case 99:		//B
+		B_Print();
+		case 111:		//jal
+		J_Print();
+		case 103:		//jalr
 		default:
 			break;
 	}
