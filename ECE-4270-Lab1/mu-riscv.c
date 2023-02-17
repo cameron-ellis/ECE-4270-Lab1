@@ -93,7 +93,7 @@ void run(int num_cycles) {
 	}
 }
 
-/***************************************************************/
+/**************************************************************rdump*/
 /* simulate to completion                                                                                               */
 /***************************************************************/
 void runAll() {                                                     
@@ -301,7 +301,28 @@ void load_program() {
 }
 
 void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) {
-
+	switch(f3){
+		case 0:
+			switch(f7){
+				case 0:		//add
+					NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] + NEXT_STATE.REGS[rs2];
+					break;
+				case 32:	//sub
+					NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] - NEXT_STATE.REGS[rs2];
+					break;
+				default:
+					break;
+				}	
+			break;
+		case 6: 			//or
+			NEXT_STATE.REGS[rd] = (NEXT_STATE.REGS[rs1] | NEXT_STATE.REGS[rs2]);
+			break;
+		case 7:				//and
+			NEXT_STATE.REGS[rd] = (NEXT_STATE.REGS[rs1] & NEXT_STATE.REGS[rs2]);
+			break;
+		default:
+			break;
+	} 			
 }
 
 void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
@@ -426,6 +447,7 @@ void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) 
 				default:
 					break;
 				}	
+			break;
 		case 6: 			//or
 			break;
 		case 7:				//and
