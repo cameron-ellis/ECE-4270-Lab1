@@ -330,8 +330,10 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	{
 	case 0: //lb
 		break;
+
 	case 1: //lh
 		break;
+
 	case 2: //lw
 		NEXT_STATE.REGS[rd] = mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN);
 		break;
@@ -341,17 +343,65 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	}
 }
 
-void Iimm_Processing() {
-	// hi
+void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	uint32_t imm0_4 = (imm << 7) >> 7;
+	uint32_t imm5_11 = imm >> 5;
+	switch (f3)
+	{
+	case 0: //addi
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] + imm;
+		break;
+
+	case 4: //xori
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] ^ imm;
+		break;
+	
+	case 6: //ori
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] | imm;
+		break;
+	
+	case 7: //andi
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] & imm;
+		break;
+	
+	case 1: //slli
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] << imm0_4;
+		break;
+	
+	case 5: //srli and srai
+		switch (imm5_11)
+		{
+		case 0: //srli
+			NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
+			break;
+
+		case 32: //srai
+			//NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	
+	case 2:
+		break;
+
+	case 3:
+		break;
+
+	default:
+		break;
+	}
 }
 
 void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
 	switch (f3)
 	{
-	case 0:
+	case 0: //sb
 		break;
 	
-	case 1:
+	case 1: //sh
 		break;
 
 	case 2: //sw
@@ -399,7 +449,8 @@ void handle_instruction()
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20;
-			Iimm_Processing();
+			imm11 = instruction >> 25;
+			Iimm_Processing(rd, f3, rs1, imm);
 			break;
 		case 3:			//I-type loads
 			rd = (instruction << 20) >> 27;
