@@ -27,6 +27,23 @@ void help() {
 }
 
 /***************************************************************/
+/* Turn a byte to a word                                                                          */
+/***************************************************************/
+uint32_t byte_to_word(uint8_t byte)
+{
+    return (byte & 0x80) ? (byte | 0xffffff80) : byte;
+}
+
+/***************************************************************/
+/* Turn a halfword to a word                                                                          */
+/***************************************************************/
+
+uint32_t half_to_word(uint16_t half)
+{
+    return (half & 0x8000) ? (half | 0xffff8000) : half;
+}
+
+/***************************************************************/
 /* Read a 32-bit word from memory                                                                            */
 /***************************************************************/
 uint32_t mem_read_32(uint32_t address)
@@ -329,9 +346,11 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	switch (f3)
 	{
 	case 0: //lb
+		NEXT_STATE.REGS[rd] = byte_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN)) & 0xFF);
 		break;
 
 	case 1: //lh
+		NEXT_STATE.REGS[rd] = half_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN)) & 0xFFFF);
 		break;
 
 	case 2: //lw
@@ -339,6 +358,8 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 		break;
 	
 	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
 		break;
 	}
 }
@@ -391,6 +412,8 @@ void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 		break;
 
 	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
 		break;
 	}
 }
@@ -399,9 +422,11 @@ void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32
 	switch (f3)
 	{
 	case 0: //sb
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
 		break;
 	
 	case 1: //sh
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
 		break;
 
 	case 2: //sw
@@ -409,6 +434,8 @@ void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32
 		break;
 
 	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
 		break;
 	}
 }
