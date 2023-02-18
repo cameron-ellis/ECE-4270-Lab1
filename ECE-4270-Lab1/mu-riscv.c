@@ -326,7 +326,19 @@ void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 }
 
 void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
-
+	switch (f3)
+	{
+	case 0: //lb
+		break;
+	case 1: //lh
+		break;
+	case 2: //lw
+		NEXT_STATE.REGS[rd] = mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN);
+		break;
+	
+	default:
+		break;
+	}
 }
 
 void Iimm_Processing() {
@@ -334,7 +346,21 @@ void Iimm_Processing() {
 }
 
 void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+	switch (f3)
+	{
+	case 0:
+		break;
+	
+	case 1:
+		break;
 
+	case 2: //sw
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		break;
+
+	default:
+		break;
+	}
 }
 
 void B_Processing() {
