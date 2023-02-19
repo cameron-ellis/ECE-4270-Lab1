@@ -37,7 +37,6 @@ uint32_t byte_to_word(uint8_t byte)
 /***************************************************************/
 /* Turn a halfword to a word                                                                          */
 /***************************************************************/
-
 uint32_t half_to_word(uint16_t half)
 {
     return (half & 0x8000) ? (half | 0xffff8000) : half;
@@ -346,15 +345,15 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	switch (f3)
 	{
 	case 0: //lb
-		NEXT_STATE.REGS[rd] = byte_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN)) & 0xFF);
+		NEXT_STATE.REGS[rd] = byte_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm)) & 0xFF);
 		break;
 
 	case 1: //lh
-		NEXT_STATE.REGS[rd] = half_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN)) & 0xFFFF);
+		NEXT_STATE.REGS[rd] = half_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm)) & 0xFFFF);
 		break;
 
 	case 2: //lw
-		NEXT_STATE.REGS[rd] = mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN);
+		NEXT_STATE.REGS[rd] = mem_read_32(NEXT_STATE.REGS[rs1] + imm);
 		break;
 	
 	default:
@@ -419,18 +418,21 @@ void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 }
 
 void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+	// Recombine immediate
+	uint32_t imm = (imm11 << 5) + imm4;
+
 	switch (f3)
 	{
 	case 0: //sb
-		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm), NEXT_STATE.REGS[rs2]);
 		break;
 	
 	case 1: //sh
-		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm), NEXT_STATE.REGS[rs2]);
 		break;
 
 	case 2: //sw
-		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm), NEXT_STATE.REGS[rs2]);
 		break;
 
 	default:
@@ -519,6 +521,7 @@ void handle_instruction()
 void initialize() { 
 	init_memory();
 	CURRENT_STATE.PC = MEM_TEXT_BEGIN;
+	CURRENT_STATE.REGS[2] = MEM_STACK_BEGIN;
 	NEXT_STATE = CURRENT_STATE;
 	RUN_FLAG = TRUE;
 }
@@ -553,8 +556,10 @@ void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) 
 				}	
 			break;
 		case 6: 			//or
+			printf("or r%d, r%d, r%d\n", rd, rs1, rs2);
 			break;
 		case 7:				//and
+			printf("and r%d, r%d, r%d\n", rd, rs1, rs2);
 			break;
 		default:
 			break;
@@ -562,15 +567,104 @@ void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) 
 }
 
 void ILoad_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	switch (f3)
+	{
+	case 0: //lb
+		printf("lb r%d, %d(r%d)\n", rd, imm, rs1);
+		break;
 
+	case 1: //lh
+		printf("lh r%d, %d(r%d)\n", rd, imm, rs1);
+		break;
+
+	case 2: //lw
+		printf("lw r%d, %d(r%d)\n", rd, imm, rs1);
+		break;
+	
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
-void Iimm_Print() {
-	// hi
+void Iimm_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	uint32_t imm0_4 = (imm << 7) >> 7;
+	uint32_t imm5_11 = imm >> 5;
+	switch (f3)
+	{
+	case 0: //addi
+		printf("addi r%d, r%d, %d\n", rd, rs1, imm);
+		break;
+
+	case 4: //xori
+		printf("xori r%d, r%d, %d\n", rd, rs1, imm);
+		break;
+	
+	case 6: //ori
+		printf("ori r%d, r%d, %d\n", rd, rs1, imm);
+		break;
+	
+	case 7: //andi
+		printf("andi r%d, r%d, %d\n", rd, rs1, imm);
+		break;
+	
+	case 1: //slli
+		printf("slli r%d, r%d, %d\n", rd, rs1, imm0_4);
+		break;
+	
+	case 5: //srli and srai
+		switch (imm5_11)
+		{
+		case 0: //srli
+			printf("srli r%d, r%d, %d\n", rd, rs1, imm0_4);
+			break;
+
+		case 32: //srai
+			//NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	
+	case 2:
+		break;
+
+	case 3:
+		break;
+
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
 void S_Print(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+	// Recombine immediate
+	uint32_t imm = (imm11 << 5) + imm4;
 
+	switch (f3)
+	{
+	case 0: //sb
+		printf("sb r%d, %d(r%d)\n", rs2, imm, rs1);
+		break;
+	
+	case 1: //sh
+		printf("sh r%d, %d(r%d)\n", rs2, imm, rs1);
+		break;
+
+	case 2: //sw
+		printf("sw r%d, %d(r%d)\n", rs2, imm, rs1);
+		break;
+
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
 void B_Print() {
@@ -609,7 +703,7 @@ void print_instruction(uint32_t addr){
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20;
-			Iimm_Print();
+			Iimm_Print(rd, f3, rs1, imm);
 			break;
 		case 3:			//I-type loads
 			rd = (instruction << 20) >> 27;
