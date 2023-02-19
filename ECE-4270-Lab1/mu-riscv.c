@@ -27,6 +27,23 @@ void help() {
 }
 
 /***************************************************************/
+/* Turn a byte to a word                                                                          */
+/***************************************************************/
+uint32_t byte_to_word(uint8_t byte)
+{
+    return (byte & 0x80) ? (byte | 0xffffff80) : byte;
+}
+
+/***************************************************************/
+/* Turn a halfword to a word                                                                          */
+/***************************************************************/
+
+uint32_t half_to_word(uint16_t half)
+{
+    return (half & 0x8000) ? (half | 0xffff8000) : half;
+}
+
+/***************************************************************/
 /* Read a 32-bit word from memory                                                                            */
 /***************************************************************/
 uint32_t mem_read_32(uint32_t address)
@@ -326,15 +343,101 @@ void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 }
 
 void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	switch (f3)
+	{
+	case 0: //lb
+		NEXT_STATE.REGS[rd] = byte_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN)) & 0xFF);
+		break;
 
+	case 1: //lh
+		NEXT_STATE.REGS[rd] = half_to_word((mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN)) & 0xFFFF);
+		break;
+
+	case 2: //lw
+		NEXT_STATE.REGS[rd] = mem_read_32(NEXT_STATE.REGS[rs1] + imm + MEM_DATA_BEGIN);
+		break;
+	
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
-void Iimm_Processing() {
-	// hi
+void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	uint32_t imm0_4 = (imm << 7) >> 7;
+	uint32_t imm5_11 = imm >> 5;
+	switch (f3)
+	{
+	case 0: //addi
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] + imm;
+		break;
+
+	case 4: //xori
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] ^ imm;
+		break;
+	
+	case 6: //ori
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] | imm;
+		break;
+	
+	case 7: //andi
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] & imm;
+		break;
+	
+	case 1: //slli
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] << imm0_4;
+		break;
+	
+	case 5: //srli and srai
+		switch (imm5_11)
+		{
+		case 0: //srli
+			NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
+			break;
+
+		case 32: //srai
+			//NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	
+	case 2:
+		break;
+
+	case 3:
+		break;
+
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
 void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+	switch (f3)
+	{
+	case 0: //sb
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		break;
+	
+	case 1: //sh
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		break;
 
+	case 2: //sw
+		mem_write_32((NEXT_STATE.REGS[rs1] + imm4 + imm11 + MEM_DATA_BEGIN), NEXT_STATE.REGS[rs2]);
+		break;
+
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
 void B_Processing() {
@@ -373,7 +476,8 @@ void handle_instruction()
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20;
-			Iimm_Processing();
+			imm11 = instruction >> 25;
+			Iimm_Processing(rd, f3, rs1, imm);
 			break;
 		case 3:			//I-type loads
 			rd = (instruction << 20) >> 27;
