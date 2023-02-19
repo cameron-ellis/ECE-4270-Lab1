@@ -328,6 +328,7 @@ void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 					NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] - NEXT_STATE.REGS[rs2];
 					break;
 				default:
+					RUN_FLAG = FALSE;
 					break;
 				}	
 			break;
@@ -338,6 +339,7 @@ void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 			NEXT_STATE.REGS[rd] = (NEXT_STATE.REGS[rs1] & NEXT_STATE.REGS[rs2]);
 			break;
 		default:
+			RUN_FLAG = FALSE;
 			break;
 	} 			
 }
@@ -401,6 +403,7 @@ void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 			break;
 		
 		default:
+			RUN_FLAG = FALSE;
 			break;
 		}
 		break;
@@ -503,6 +506,7 @@ void handle_instruction()
 		case 103:		//jalr
 			break;
 		default:
+			RUN_FLAG = FALSE;
 			break;
 	}
 	
@@ -549,6 +553,7 @@ void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) 
 					printf("sub r%d, r%d, r%d\n", rd, rs1, rs2);
 					break;
 				default:
+					printf("WARNING: INSTRUCTION NOT FOUND!\n");
 					break;
 				}	
 			break;
@@ -557,6 +562,7 @@ void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) 
 		case 7:				//and
 			break;
 		default:
+			printf("WARNING: INSTRUCTION NOT FOUND!\n");
 			break;
 	} 			
 }
@@ -634,6 +640,7 @@ void print_instruction(uint32_t addr){
 		case 103:		//jalr
 			break;
 		default:
+			printf("WARNING: INSTRUCTION NOT FOUND!\n");
 			break;
 	}
 }
