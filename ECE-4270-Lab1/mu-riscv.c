@@ -81,7 +81,7 @@ void mem_write_32(uint32_t address, uint32_t value)
 
 /***************************************************************/
 /* Execute one cycle                                                                                                              */
-/***************************************************************/
+/***********************************3413****************************/
 void cycle() {                                                
 	handle_instruction();
 	CURRENT_STATE = NEXT_STATE;
@@ -316,6 +316,9 @@ void load_program() {
 	fclose(fp);
 }
 
+/**************************************************************/
+/* Process instructions                                                                                      */
+/**************************************************************/
 void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) {
 	switch(f3){
 		case 0:
@@ -325,6 +328,31 @@ void R_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 					break;
 				case 32:	//sub
 					NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] - NEXT_STATE.REGS[rs2];
+					break;
+				default:
+					RUN_FLAG = FALSE;
+					break;
+				}	
+			break;
+		case 1: 			//sll
+			NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] << NEXT_STATE.REGS[rs2];
+			break;
+		case 2:				//slt
+			RUN_FLAG = FALSE;
+			break;
+		case 3:				//sltu
+			RUN_FLAG = FALSE;
+			break;
+		case 4:				//xor
+			RUN_FLAG = FALSE;
+			break;
+		case 5:
+			switch(f7){
+				case 0:		//srl
+					NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> NEXT_STATE.REGS[rs2];
+					break;
+				case 32:	//sra
+					RUN_FLAG = FALSE;
 					break;
 				default:
 					RUN_FLAG = FALSE;
@@ -445,8 +473,48 @@ void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32
 	}
 }
 
-void B_Processing() {
-	// hi
+void B_Processing(imm4, f3, rs1, rs2, imm11) {
+    //Get full immediate number.
+	uint32_t imm12_1 = 0;
+    uint32_t temp;
+    
+    temp = (imm4 << 27) >> 28;
+    imm12_1 += temp;
+    
+    temp = ((imm11 << 26) >> 22);
+    imm12_1 += temp;
+
+    temp = ((imm4 << 31) >> 21);
+    imm12_1 += temp;
+
+    temp = ((imm11 >> 6) << 11);
+    imm12_1 += temp;
+	
+	switch (f3)
+	{
+	case 0: //beq
+		break;
+	
+	case 1: //bne
+		break;
+
+	case 4: //blt
+		break;
+
+	case 5:	//bge
+		break;
+
+	case 6: //bltu
+		break;
+
+	case 7: //bgeu
+		break;
+
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
 void J_Processing() {
@@ -500,7 +568,12 @@ void handle_instruction()
 			S_Processing(imm4, f3, rs1, rs2, imm11);
 			break;
 		case 99:		//B
-			B_Processing();
+			imm4 = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			imm11 = instruction >> 25;
+			B_Processing(imm4, f3, rs1, rs2, imm11);
 			break;
 		case 111:		//jal
 			J_Processing();
