@@ -396,22 +396,30 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	uint32_t imm0_4 = (imm << 7) >> 7;
 	uint32_t imm5_11 = imm >> 5;
+
+	if((imm >> 10) == 1){
+			uint32_t Shift =0xFFFFFFFF;
+			Shift = Shift << 12;
+			imm = Shift + imm;
+		}
+
+
 	switch (f3)
 	{
 	case 0: //addi
-		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] + imm;
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] + (int)imm;
 		break;
 
 	case 4: //xori
-		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] ^ imm;
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] ^ (int)imm;
 		break;
 	
 	case 6: //ori
-		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] | imm;
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] | (int)imm;
 		break;
 	
 	case 7: //andi
-		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] & imm;
+		NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] & (int)imm;
 		break;
 	
 	case 1: //slli
@@ -426,6 +434,7 @@ void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 			break;
 
 		case 32: //srai
+			printf("\nSRAI NOT IMPLEMENTED YET\n");
 			//NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
 			break;
 		
@@ -473,41 +482,74 @@ void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32
 	}
 }
 
-void B_Processing(imm4, f3, rs1, rs2, imm11) {
+void B_Processing(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm12_5) {
     //Get full immediate number.
 	uint32_t imm12_1 = 0;
-    uint32_t temp;
+	uint32_t immFull = 0;
+    uint32_t temp = 0;
     
-    temp = (imm4 << 27) >> 28;
+    temp = (imm4_11 << 27) >> 28;
     imm12_1 += temp;
     
-    temp = ((imm11 << 26) >> 22);
+    temp = ((imm12_5 << 26) >> 22);
     imm12_1 += temp;
 
-    temp = ((imm4 << 31) >> 21);
+    temp = ((imm4_11 << 31) >> 21);
     imm12_1 += temp;
 
-    temp = ((imm11 >> 6) << 11);
+    temp = ((imm12_5 >> 6) << 11);
     imm12_1 += temp;
-	
+
+	immFull = imm12_1;
+
+	if((imm12_5 >> 6) == 1){
+			uint32_t Shift =0xFFFFFFFF;
+			Shift = Shift << 12;
+			immFull = Shift + immFull;
+		}
+
 	switch (f3)
 	{
 	case 0: //beq
+		if(NEXT_STATE.REGS[rs1] == NEXT_STATE.REGS[rs2]){
+			
+			NEXT_STATE.PC += (4*(int)immFull);
+		}
 		break;
 	
 	case 1: //bne
+		if(NEXT_STATE.REGS[rs1] != NEXT_STATE.REGS[rs2]){
+			
+			NEXT_STATE.PC += (4*(int)immFull);
+		}
 		break;
 
 	case 4: //blt
+		if(NEXT_STATE.REGS[rs1] < NEXT_STATE.REGS[rs2]){
+			
+			NEXT_STATE.PC += (4*(int)immFull);
+		}
 		break;
 
 	case 5:	//bge
+		if(NEXT_STATE.REGS[rs1] >= NEXT_STATE.REGS[rs2]){
+			
+			NEXT_STATE.PC += (4*(int)immFull);
+		}
 		break;
 
 	case 6: //bltu
+		if(NEXT_STATE.REGS[rs1] < NEXT_STATE.REGS[rs2]){
+			
+			NEXT_STATE.PC += 4*imm12_1;
+		}
 		break;
 
 	case 7: //bgeu
+		if(NEXT_STATE.REGS[rs1] >= NEXT_STATE.REGS[rs2]){
+			
+			NEXT_STATE.PC += 4*imm12_1;
+		}
 		break;
 
 	default:
@@ -746,8 +788,63 @@ void S_Print(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t im
 	}
 }
 
-void B_Print() {
-	// hi
+void B_Print(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm12_5) {
+	//Get full immediate number.
+	uint32_t imm12_1 = 0;
+	uint32_t immFull = 0;
+    uint32_t temp = 0;
+    
+    temp = (imm4_11 << 27) >> 28;
+    imm12_1 += temp;
+    
+    temp = ((imm12_5 << 26) >> 22);
+    imm12_1 += temp;
+
+    temp = ((imm4_11 << 31) >> 21);
+    imm12_1 += temp;
+
+    temp = ((imm12_5 >> 6) << 11);
+    imm12_1 += temp;
+
+	immFull = imm12_1;
+
+	if((imm12_5 >> 6) == 1){
+			uint32_t Shift =0xFFFFFFFF;
+			Shift = Shift << 12;
+			immFull = Shift + immFull;
+		}
+
+	switch (f3)
+	{
+	case 0: //beq
+		printf("beq r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+	
+	case 1: //bne
+		printf("bne r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+
+	case 4: //blt
+		printf("blt r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+
+	case 5:	//bge
+		printf("bge r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+
+	case 6: //bltu
+		printf("bltu r%d, r%d, %d\n", rs1, rs2, imm12_1);
+		break;
+
+	case 7: //bgeu
+		printf("bgeu r%d, r%d, %d\n", rs1, rs2, imm12_1);
+		break;
+
+	default:
+		printf("Invalid instruction");
+		RUN_FLAG = FALSE;
+		break;
+	}
 }
 
 void J_Print() {
@@ -800,7 +897,13 @@ void print_instruction(uint32_t addr){
 			S_Print(imm4, f3, rs1, rs2, imm11);
 			break;
 		case 99:		//B
-			B_Print();break;
+			imm4 = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			imm11 = instruction >> 25;
+			B_Print(imm4, f3, rs1, rs2, imm11);
+			break;
 		case 111:		//jal
 			J_Print();
 			break;
