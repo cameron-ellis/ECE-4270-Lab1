@@ -1,0 +1,21 @@
+#finds the Fibonacci number of a given value
+#Calculated with a value of 10
+#assumes given value is positive or zero
+#retrun value stored in x10
+
+        addi x10, x0, 10        #number to find the fibonacci number of
+        addi x28, x0, 0         #set initial values
+        addi x29, x0, 1
+        BEQ x10, x0, exit       #special case for 0
+        BEQ x10, x29, exit      #special case for 1
+        addi x31, x0, 2         #counter variable
+loop:   
+        add x30, x28, x29       #calculate next fib value
+        addi x31, x31, 1        #increment counter
+        BEQ x10, x31, done      #stop if value reached
+        add x28, x29, x0        #shift fibonacci values
+        add x29, x30, x0
+        BEQ x0, x0, loop        #loop
+done:   
+        addi x10, x30, 0        #set return value to x10
+exit:
