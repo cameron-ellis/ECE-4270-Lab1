@@ -29,8 +29,8 @@ typedef struct s_type {
     char inst_name[7];
     int opcode;
     int f3;
-    int rd;
     int rs1;
+    int rs2;
     int imm;
 } s_type;
 
