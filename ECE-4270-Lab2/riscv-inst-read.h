@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct inst {
     char type;
@@ -50,4 +51,4 @@ typedef struct j_type {
     int imm;
 } j_type;
 
-struct inst inst_read(char* filepath);
+struct inst inst_read(const char* filepath);
