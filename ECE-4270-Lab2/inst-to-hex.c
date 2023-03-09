@@ -1,39 +1,34 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include "riscv-inst-read.h"
+#include "inst-to-hex.h"
 
-char byteToHex(uint8_t byte);
-
-void RtypeToHex(r_type instStruct, char * instruction){
+void RtypeToHex(r_type * instStruct, char * instruction){
     uint8_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, temp;
     uint8_t temp1, temp2;
 
-    temp1 = instStruct.opcode << 4;
+    temp1 = instStruct->opcode << 4;
     byte0 = temp1 >> 4;
 
-    temp1 = instStruct.rd << 7;
+    temp1 = instStruct->rd << 7;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.opcode >> 4;
+    temp2 = instStruct->opcode >> 4;
     byte1 = temp1 + temp2;
 
-    byte2 = instStruct.rd >> 1;
+    byte2 = instStruct->rd >> 1;
 
-    temp1 = instStruct.rs1 << 7;
+    temp1 = instStruct->rs1 << 7;
     temp1 = temp1 >> 4;
-    byte3 = instStruct.f3 + temp1;
+    byte3 = instStruct->f3 + temp1;
 
-    byte4 = instStruct.rs1 >>1;
+    byte4 = instStruct->rs1 >>1;
 
-    temp1 = instStruct.rs2 << 4;
+    temp1 = instStruct->rs2 << 4;
     byte5 = temp1 >> 4;
 
-    temp1 = instStruct.f7 << 4;
+    temp1 = instStruct->f7 << 4;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.rs2 >> 4;
+    temp2 = instStruct->rs2 >> 4;
     byte6 = temp1 + temp2;
     
-    byte7 = instStruct.f7 >> 3;
+    byte7 = instStruct->f7 >> 3;
 
     instruction[7] = byteToHex(byte0);
     instruction[6] = byteToHex(byte1);
@@ -47,34 +42,34 @@ void RtypeToHex(r_type instStruct, char * instruction){
     //uint32_t instruction = (byte7 << 28) + (byte6 << 24) + (byte5 << 20) + (byte4 << 16) + (byte3 << 12) + (byte2 << 8) + (byte1 << 4) + byte0;
 }
 
-void ItypeToHex(i_type instStruct, char * instruction){
+void ItypeToHex(i_type * instStruct, char * instruction){
     uint8_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, temp;
     uint8_t temp1, temp2;
     uint16_t temp3;
 
-    temp1 = instStruct.opcode << 4;
+    temp1 = instStruct->opcode << 4;
     byte0 = temp1 >> 4;
 
-    temp1 = instStruct.rd << 7;
+    temp1 = instStruct->rd << 7;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.opcode >> 4;
+    temp2 = instStruct->opcode >> 4;
     byte1 = temp1 + temp2;
 
-    byte2 = instStruct.rd >> 1;
+    byte2 = instStruct->rd >> 1;
 
-    temp1 = instStruct.rs1 << 7;
+    temp1 = instStruct->rs1 << 7;
     temp1 = temp1 >> 4;
-    byte3 = instStruct.f3 + temp1;
+    byte3 = instStruct->f3 + temp1;
 
-    byte4 = instStruct.rs1 >>1;
+    byte4 = instStruct->rs1 >>1;
 
-    temp3 = instStruct.imm << 8;
+    temp3 = instStruct->imm << 8;
     byte5 = temp3 >> 8;
 
-    temp3 = instStruct.imm << 4;
+    temp3 = instStruct->imm << 4;
     byte6 = temp3 >> 8;
     
-    byte7 = instStruct.imm >> 8;
+    byte7 = instStruct->imm >> 8;
 
     instruction[7] = byteToHex(byte0);
     instruction[6] = byteToHex(byte1);
@@ -87,34 +82,34 @@ void ItypeToHex(i_type instStruct, char * instruction){
     instruction[8] = '\0';
 }
 
-void StypeToHex(s_type instStruct, char * instruction){
+void StypeToHex(s_type * instStruct, char * instruction){
     uint8_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, temp;
     uint8_t temp1, temp2;
-    int imm4_0 = (instStruct.imm << 7) >> 7;
-    int imm11_5 = instStruct.imm >> 5;
+    int imm4_0 = (instStruct->imm << 7) >> 7;
+    int imm11_5 = instStruct->imm >> 5;
 
-    temp1 = instStruct.opcode << 4;
+    temp1 = instStruct->opcode << 4;
     byte0 = temp1 >> 4;
 
     temp1 = imm4_0 << 7;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.opcode >> 4;
+    temp2 = instStruct->opcode >> 4;
     byte1 = temp1 + temp2;
 
     byte2 = imm4_0 >> 1;
 
-    temp1 = instStruct.rs1 << 7;
+    temp1 = instStruct->rs1 << 7;
     temp1 = temp1 >> 4;
-    byte3 = instStruct.f3 + temp1;
+    byte3 = instStruct->f3 + temp1;
 
-    byte4 = instStruct.rs1 >>1;
+    byte4 = instStruct->rs1 >>1;
 
-    temp1 = instStruct.rs2 << 4;
+    temp1 = instStruct->rs2 << 4;
     byte5 = temp1 >> 4;
 
     temp1 = imm11_5 << 4;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.rs2 >> 4;
+    temp2 = instStruct->rs2 >> 4;
     byte6 = temp1 + temp2;
     
     byte7 = imm11_5 >> 3;
@@ -130,38 +125,46 @@ void StypeToHex(s_type instStruct, char * instruction){
     instruction[8] = '\0';
 }
 
-void BtypeToHex(b_type instStruct, char * instruction){
+void BtypeToHex(b_type * instStruct, char * instruction){
     uint8_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, temp;
     uint8_t temp1, temp2;
 
-    temp1 = (instStruct.imm << 1) >> 10;
-    int imm4_1_11 = ((instStruct.imm << 9) >> 8) + temp1;
-    
-    temp1 = (instStruct.imm >> 11) << 7;
-    int imm12_10_5 = (instStruct.imm >> 3) + temp1;
+    uint32_t imm, temp3;
 
-    temp1 = instStruct.opcode << 4;
+    imm = instStruct->imm;
+    printf("\n%d this one\n", imm);
+    temp3 = (imm >> 11) << 6; //12
+    int imm12_10_5 = temp3;
+    temp3 = (imm << 22) >> 26;
+    imm12_10_5 += temp3;
+
+    temp3 = ((imm << 21) >> 31);
+    int imm4_1_11 = temp3;
+    temp3 = (imm << 28) >> 27;
+    imm4_1_11 += temp3;
+
+    temp1 = instStruct->opcode << 4;
     byte0 = temp1 >> 4;
 
     temp1 = imm4_1_11 << 7;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.opcode >> 4;
+    temp2 = instStruct->opcode >> 4;
     byte1 = temp1 + temp2;
 
     byte2 = imm4_1_11 >> 1;
 
-    temp1 = instStruct.rs1 << 7;
+    temp1 = instStruct->rs1 << 7;
     temp1 = temp1 >> 4;
-    byte3 = instStruct.f3 + temp1;
+    byte3 = instStruct->f3 + temp1;
 
-    byte4 = instStruct.rs1 >>1;
+    byte4 = instStruct->rs1 >>1;
 
-    temp1 = instStruct.rs2 << 4;
+    temp1 = instStruct->rs2 << 4;
     byte5 = temp1 >> 4;
 
-    temp1 = imm12_10_5 << 4;
+    temp1 = imm12_10_5 << 5;
     temp1 = temp1 >> 4;
-    temp2 = instStruct.rs2 >> 4;
+    temp2 = instStruct->rs2 >> 4;
     byte6 = temp1 + temp2;
     
     byte7 = imm12_10_5 >> 3;
@@ -216,7 +219,26 @@ char byteToHex(uint8_t byte){
     }
 }
 
-int main(){
+char * encodeInstruction(inst instStruct, char * instruction){
+    switch(instStruct.type){
+        case 'R':
+            RtypeToHex((r_type*)instStruct.type_block, instruction);
+            break;
+        case 'I':
+            ItypeToHex((i_type*)instStruct.type_block, instruction);
+            break;
+        case 'S':
+            StypeToHex((s_type*)instStruct.type_block, instruction);
+            break;
+        case 'B':
+            BtypeToHex((b_type*)instStruct.type_block, instruction);
+            break;
+        default:
+            printf("invalid opcode\n");
+    }
+}
+
+/*int main(){
     r_type instruction;
     instruction.opcode = 0b0110011;
     instruction.f3 = 0b000;
@@ -227,4 +249,4 @@ int main(){
     char result[9];
     RtypeToHex(instruction, result);
     printf("Instruction = %s\n", result);
-}
+}*/

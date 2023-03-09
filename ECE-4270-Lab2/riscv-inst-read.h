@@ -51,4 +51,4 @@ typedef struct j_type {
     int imm;
 } j_type;
 
-struct inst inst_read(const char* filepath);
+struct inst inst_read(FILE *);

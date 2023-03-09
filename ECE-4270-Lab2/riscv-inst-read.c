@@ -1,17 +1,17 @@
 #include "riscv-inst-read.h"
 
-struct inst inst_read(const char* filepath) {
+struct inst inst_read(FILE * f) {
     inst result_inst;
     char inst_name[7];
     char trash[10];
 
-    FILE *f = fopen(filepath, "r");
+    //FILE *f = fopen(filepath, "r");
 
     fscanf(f, "%s ", inst_name);
     // R Type Instructions
     if (strncmp(inst_name, "add",sizeof(char)*7) == 0)
     {
-        printf("add ");
+        //printf("add ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -23,7 +23,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sub",sizeof(char)*7) == 0)
     {
-        printf("sub ");
+        //printf("sub ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -35,7 +35,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "xor",sizeof(char)*7) == 0)
     {
-        printf("xor ");
+        //printf("xor ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -47,7 +47,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "or",sizeof(char)*7) == 0)
     {
-        printf("or ");
+        //printf("or ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -59,7 +59,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "and",sizeof(char)*7) == 0)
     {
-        printf("and ");
+        //printf("and ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -71,7 +71,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sll",sizeof(char)*7) == 0)
     {
-        printf("sll ");
+        //printf("sll ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -83,7 +83,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "srl",sizeof(char)*7) == 0)
     {
-        printf("srl ");
+        //printf("srl ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -95,7 +95,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sra",sizeof(char)*7) == 0)
     {
-        printf("sra ");
+        //printf("sra ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -107,7 +107,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "slt",sizeof(char)*7) == 0)
     {
-        printf("slt ");
+        //printf("slt ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -119,7 +119,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sltu", sizeof(char)*7) == 0)
     {
-        printf("sltu ");
+        //printf("sltu ");
         result_inst.type = 'R';
         r_type* inst_info = (r_type*)malloc(sizeof(r_type));
         inst_info->opcode = 51;
@@ -132,7 +132,7 @@ struct inst inst_read(const char* filepath) {
     // I Type Instructions
     if (strncmp(inst_name, "addi", sizeof(char)*7) == 0)
     {
-        printf("addi ");
+        //printf("addi ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -143,7 +143,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "xori", sizeof(char)*7) == 0)
     {
-        printf("xori ");
+        //printf("xori ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -154,7 +154,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "ori", sizeof(char)*7) == 0)
     {
-        printf("ori ");
+        //printf("ori ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -165,7 +165,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "andi", sizeof(char)*7) == 0)
     {
-        printf("andi ");
+        //printf("andi ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -176,7 +176,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "slli", sizeof(char)*7) == 0)
     {
-        printf("slli ");
+        //printf("slli ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -187,7 +187,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "srli", sizeof(char)*7) == 0)
     {
-        printf("srli ");
+        //printf("srli ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -198,7 +198,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "srai", sizeof(char)*7) == 0)
     {
-        printf("srai ");
+        //printf("srai ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -210,7 +210,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "slti", sizeof(char)*7) == 0)
     {
-        printf("slti ");
+        //printf("slti ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -221,7 +221,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sltiu", sizeof(char)*7) == 0)
     {
-        printf("sltiu ");
+        //printf("sltiu ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 19;
@@ -232,7 +232,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "lb", sizeof(char)*7) == 0)
     {
-        printf("lb ");
+        //printf("lb ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 3;
@@ -243,7 +243,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
     {
-        printf("lh ");
+        //printf("lh ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 3;
@@ -254,7 +254,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "lw", sizeof(char)*7) == 0)
     {
-        printf("lw ");
+        //printf("lw ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 3;
@@ -265,7 +265,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "lbu", sizeof(char)*7) == 0)
     {
-        printf("lbu ");
+        //printf("lbu ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 3;
@@ -276,7 +276,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "lhu", sizeof(char)*7) == 0)
     {
-        printf("lhu ");
+        //printf("lhu ");
         result_inst.type = 'I';
         i_type* inst_info = (i_type*)malloc(sizeof(i_type));
         inst_info->opcode = 3;
@@ -288,7 +288,7 @@ struct inst inst_read(const char* filepath) {
     // S Type Instructions
     if (strncmp(inst_name, "sb", sizeof(char)*7) == 0)
     {
-        printf("sb ");
+        //printf("sb ");
         result_inst.type = 'S';
         s_type* inst_info = (s_type*)malloc(sizeof(s_type));
         inst_info->opcode = 35;
@@ -299,7 +299,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sh", sizeof(char)*7) == 0)
     {
-        printf("sh ");
+        //printf("sh ");
         result_inst.type = 'S';
         s_type* inst_info = (s_type*)malloc(sizeof(s_type));
         inst_info->opcode = 35;
@@ -310,7 +310,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "sw", sizeof(char)*7) == 0)
     {
-        printf("sw ");
+        //printf("sw ");
         result_inst.type = 'S';
         s_type* inst_info = (s_type*)malloc(sizeof(s_type));
         inst_info->opcode = 35;
@@ -322,7 +322,7 @@ struct inst inst_read(const char* filepath) {
     // B Type Instructions
     if (strncmp(inst_name, "beq", sizeof(char)*7) == 0)
     {
-        printf("beq ");
+        //printf("beq ");
         result_inst.type = 'B';
         b_type* inst_info = (b_type*)malloc(sizeof(b_type));
         inst_info->opcode = 99;
@@ -333,7 +333,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "bne", sizeof(char)*7) == 0)
     {
-        printf("bne ");
+        //printf("bne ");
         result_inst.type = 'B';
         b_type* inst_info = (b_type*)malloc(sizeof(b_type));
         inst_info->opcode = 99;
@@ -344,7 +344,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "blt", sizeof(char)*7) == 0)
     {
-        printf("blt ");
+        //printf("blt ");
         result_inst.type = 'B';
         b_type* inst_info = (b_type*)malloc(sizeof(b_type));
         inst_info->opcode = 99;
@@ -355,7 +355,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "bge", sizeof(char)*7) == 0)
     {
-        printf("bge ");
+        //printf("bge ");
         result_inst.type = 'B';
         b_type* inst_info = (b_type*)malloc(sizeof(b_type));
         inst_info->opcode = 99;
@@ -366,7 +366,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "bltu", sizeof(char)*7) == 0)
     {
-        printf("bltu ");
+        //printf("bltu ");
         result_inst.type = 'B';
         b_type* inst_info = (b_type*)malloc(sizeof(b_type));
         inst_info->opcode = 99;
@@ -377,7 +377,7 @@ struct inst inst_read(const char* filepath) {
     }
     if (strncmp(inst_name, "bgeu", sizeof(char)*7) == 0)
     {
-        printf("bgeu ");
+        //printf("bgeu ");
         result_inst.type = 'B';
         b_type* inst_info = (b_type*)malloc(sizeof(b_type));
         inst_info->opcode = 99;
@@ -389,9 +389,9 @@ struct inst inst_read(const char* filepath) {
 
 }
 
-int main() {
+/*int main() {
     inst inst_out = inst_read("test.txt");
     printf("x%d, %d(x%d)\n", ((i_type*)inst_out.type_block)->rd,((i_type*)inst_out.type_block)->imm,((i_type*)inst_out.type_block)->rs1);
     free(inst_out.type_block);
     return 0;
-}
+}*/

@@ -812,6 +812,7 @@ void B_Print(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 			uint32_t Shift =0xFFFFFFFF;
 			Shift = Shift << 12;
 			immFull = Shift + immFull;
+			printf("%d\n", immFull);
 		}
 
 	switch (f3)
