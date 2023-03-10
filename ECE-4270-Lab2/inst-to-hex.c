@@ -52,33 +52,44 @@ void ItypeToHex(i_type * instStruct, char * instruction){
 
     temp1 = instStruct->rd << 7;
     temp1 = temp1 >> 4;
-    temp2 = instStruct->opcode >> 4;
+    temp2 = (unsigned int)instStruct->opcode >> 4;
     byte1 = temp1 + temp2;
 
-    byte2 = instStruct->rd >> 1;
+    byte2 = (unsigned int)instStruct->rd >> 1;
 
     temp1 = instStruct->rs1 << 7;
     temp1 = temp1 >> 4;
     byte3 = instStruct->f3 + temp1;
 
-    byte4 = instStruct->rs1 >>1;
+    byte4 = (unsigned int)instStruct->rs1 >>1;
+
+    temp3 = instStruct->imm << 12;
+    byte5 = temp3 >> 12;
 
     temp3 = instStruct->imm << 8;
-    byte5 = temp3 >> 8;
-
-    temp3 = instStruct->imm << 4;
-    byte6 = temp3 >> 8;
+    byte6 = temp3 >> 12;
     
-    byte7 = instStruct->imm >> 8;
+    temp3 = instStruct->imm << 4;
+    byte7 = temp3 >> 12;
+    
 
+    printf("\nByte 0\n");
     instruction[7] = byteToHex(byte0);
+    printf("\nByte 1\n");
     instruction[6] = byteToHex(byte1);
+    printf("\nByte 2\n");
     instruction[5] = byteToHex(byte2);
+    printf("\nByte 3\n");
     instruction[4] = byteToHex(byte3);
+    printf("\nByte 4\n");
     instruction[3] = byteToHex(byte4);
+    printf("\nByte 5\n");
     instruction[2] = byteToHex(byte5);
+    printf("\nByte 6\n");
     instruction[1] = byteToHex(byte6);
+    printf("\nByte 7\n");
     instruction[0] = byteToHex(byte7);
+    printf("\nByte 8\n");
     instruction[8] = '\0';
 }
 
@@ -132,14 +143,13 @@ void BtypeToHex(b_type * instStruct, char * instruction){
     uint32_t imm, temp3;
 
     imm = instStruct->imm;
-    printf("\n%d this one\n", imm);
     temp3 = (imm >> 11) << 6; //12
-    int imm12_10_5 = temp3;
+    uint8_t imm12_10_5 = temp3;
     temp3 = (imm << 22) >> 26;
     imm12_10_5 += temp3;
 
     temp3 = ((imm << 21) >> 31);
-    int imm4_1_11 = temp3;
+    uint8_t imm4_1_11 = temp3;
     temp3 = (imm << 28) >> 27;
     imm4_1_11 += temp3;
 
@@ -167,7 +177,8 @@ void BtypeToHex(b_type * instStruct, char * instruction){
     temp2 = instStruct->rs2 >> 4;
     byte6 = temp1 + temp2;
     
-    byte7 = imm12_10_5 >> 3;
+    byte7 = (imm12_10_5 << 1);
+    byte7 = byte7 >> 4;
 
     instruction[7] = byteToHex(byte0);
     instruction[6] = byteToHex(byte1);
@@ -215,7 +226,8 @@ char byteToHex(uint8_t byte){
         case 15:
             return 'F';
         default:
-            return '0';
+            printf("Warning: ByteToHex default taken.\n");
+            return 'F';
     }
 }
 

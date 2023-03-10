@@ -387,7 +387,7 @@ void ILoad_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 		break;
 	
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -397,7 +397,7 @@ void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	uint32_t imm0_4 = (imm << 7) >> 7;
 	uint32_t imm5_11 = imm >> 5;
 
-	if((imm >> 10) == 1){
+	if((imm >> 11) == 1){
 			uint32_t Shift =0xFFFFFFFF;
 			Shift = Shift << 12;
 			imm = Shift + imm;
@@ -451,7 +451,7 @@ void Iimm_Processing(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 		break;
 
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -476,7 +476,7 @@ void S_Processing(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32
 		break;
 
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -512,8 +512,10 @@ void B_Processing(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uin
 	{
 	case 0: //beq
 		if(NEXT_STATE.REGS[rs1] == NEXT_STATE.REGS[rs2]){
-			
 			NEXT_STATE.PC += (4*(int)immFull);
+		}
+		else{
+			NEXT_STATE.PC += 4;
 		}
 		break;
 	
@@ -522,12 +524,18 @@ void B_Processing(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uin
 			
 			NEXT_STATE.PC += (4*(int)immFull);
 		}
+		else{
+			NEXT_STATE.PC += 4;
+		}
 		break;
 
 	case 4: //blt
 		if(NEXT_STATE.REGS[rs1] < NEXT_STATE.REGS[rs2]){
 			
 			NEXT_STATE.PC += (4*(int)immFull);
+		}
+		else{
+			NEXT_STATE.PC += 4;
 		}
 		break;
 
@@ -536,12 +544,18 @@ void B_Processing(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uin
 			
 			NEXT_STATE.PC += (4*(int)immFull);
 		}
+		else{
+			NEXT_STATE.PC += 4;
+		}
 		break;
 
 	case 6: //bltu
 		if(NEXT_STATE.REGS[rs1] < NEXT_STATE.REGS[rs2]){
 			
 			NEXT_STATE.PC += 4*imm12_1;
+		}
+		else{
+			NEXT_STATE.PC += 4;
 		}
 		break;
 
@@ -550,10 +564,13 @@ void B_Processing(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uin
 			
 			NEXT_STATE.PC += 4*imm12_1;
 		}
+		else{
+			NEXT_STATE.PC += 4;
+		}
 		break;
 
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -585,6 +602,7 @@ void handle_instruction()
 			rs2 = (instruction << 7) >> 27;
 			f7 = instruction >> 25;
 			R_Processing(rd, f3, rs1, rs2, f7);	
+			NEXT_STATE.PC += 4;
 			break;		
 		case 19:		//I
 			rd = (instruction << 20) >> 27;
@@ -593,6 +611,7 @@ void handle_instruction()
 			imm = instruction >> 20;
 			imm11 = instruction >> 25;
 			Iimm_Processing(rd, f3, rs1, imm);
+			NEXT_STATE.PC += 4;
 			break;
 		case 3:			//I-type loads
 			rd = (instruction << 20) >> 27;
@@ -600,6 +619,7 @@ void handle_instruction()
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20; 		
 			ILoad_Processing(rd, f3, rs1, imm);
+			NEXT_STATE.PC += 4;
 			break;
 		case 35:		//S
 			imm4 = (instruction << 20) >> 27;
@@ -608,6 +628,7 @@ void handle_instruction()
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
 			S_Processing(imm4, f3, rs1, rs2, imm11);
+			NEXT_STATE.PC += 4;
 			break;
 		case 99:		//B
 			imm4 = (instruction << 20) >> 27;
@@ -624,10 +645,12 @@ void handle_instruction()
 			break;
 		default:
 			RUN_FLAG = FALSE;
+			return;
 			break;
 	}
+	//Debug print to see executed instructions.
+	//print_instruction(addr);
 	
-	NEXT_STATE.PC += 4;
 
 	/*IMPLEMENT THIS*/
 	/* execute one instruction at a time. Use/update CURRENT_STATE and and NEXT_STATE, as necessary.*/
@@ -703,7 +726,7 @@ void ILoad_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 		break;
 	
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -757,7 +780,7 @@ void Iimm_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 		break;
 
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -782,7 +805,7 @@ void S_Print(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t im
 		break;
 
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}
@@ -812,7 +835,6 @@ void B_Print(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 			uint32_t Shift =0xFFFFFFFF;
 			Shift = Shift << 12;
 			immFull = Shift + immFull;
-			printf("%d\n", immFull);
 		}
 
 	switch (f3)
@@ -842,7 +864,7 @@ void B_Print(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t
 		break;
 
 	default:
-		printf("Invalid instruction");
+		printf("Invalid instruction\n");
 		RUN_FLAG = FALSE;
 		break;
 	}

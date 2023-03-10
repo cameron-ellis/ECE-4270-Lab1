@@ -11,3 +11,6 @@ add x28, x29, x0
 add x29, x30, x0
 beq x0, x0, -5  
 addi x10, x30, 0
+addi x5, x5, 5
+addi x5, x5, -3
+addi x5, x5, -15
