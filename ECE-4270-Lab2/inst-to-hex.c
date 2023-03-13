@@ -73,31 +73,23 @@ void ItypeToHex(i_type * instStruct, char * instruction){
     byte7 = temp3 >> 12;
     
 
-    printf("\nByte 0\n");
     instruction[7] = byteToHex(byte0);
-    printf("\nByte 1\n");
     instruction[6] = byteToHex(byte1);
-    printf("\nByte 2\n");
     instruction[5] = byteToHex(byte2);
-    printf("\nByte 3\n");
     instruction[4] = byteToHex(byte3);
-    printf("\nByte 4\n");
     instruction[3] = byteToHex(byte4);
-    printf("\nByte 5\n");
     instruction[2] = byteToHex(byte5);
-    printf("\nByte 6\n");
     instruction[1] = byteToHex(byte6);
-    printf("\nByte 7\n");
     instruction[0] = byteToHex(byte7);
-    printf("\nByte 8\n");
     instruction[8] = '\0';
 }
 
 void StypeToHex(s_type * instStruct, char * instruction){
     uint8_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, temp;
     uint8_t temp1, temp2;
-    int imm4_0 = (instStruct->imm << 7) >> 7;
-    int imm11_5 = instStruct->imm >> 5;
+    uint16_t imm4_0 = (instStruct->imm << 11);
+    imm4_0 = imm4_0 >> 11;
+    unsigned int imm11_5 = instStruct->imm >> 5;
 
     temp1 = instStruct->opcode << 4;
     byte0 = temp1 >> 4;
@@ -125,9 +117,23 @@ void StypeToHex(s_type * instStruct, char * instruction){
     
     byte7 = imm11_5 >> 3;
 
+    /*
     instruction[7] = byteToHex(byte0);
     instruction[6] = byteToHex(byte1);
     instruction[5] = byteToHex(byte2);
+    instruction[4] = byteToHex(byte3);
+    instruction[3] = byteToHex(byte4);
+    instruction[2] = byteToHex(byte5);
+    instruction[1] = byteToHex(byte6);
+    instruction[0] = byteToHex(byte7);
+    instruction[8] = '\0';
+    */
+
+    instruction[7] = byteToHex(byte0);
+    instruction[6] = byteToHex(byte1);
+    printf("\nByte 2\n");
+    instruction[5] = byteToHex(byte2);
+    printf("\nByte 3\n");
     instruction[4] = byteToHex(byte3);
     instruction[3] = byteToHex(byte4);
     instruction[2] = byteToHex(byte5);
