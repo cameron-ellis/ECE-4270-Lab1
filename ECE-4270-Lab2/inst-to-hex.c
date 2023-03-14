@@ -118,18 +118,6 @@ void StypeToHex(s_type * instStruct, char * instruction){
     
     byte7 = imm11_5 >> 3;
 
-    /*
-    instruction[7] = byteToHex(byte0);
-    instruction[6] = byteToHex(byte1);
-    instruction[5] = byteToHex(byte2);
-    instruction[4] = byteToHex(byte3);
-    instruction[3] = byteToHex(byte4);
-    instruction[2] = byteToHex(byte5);
-    instruction[1] = byteToHex(byte6);
-    instruction[0] = byteToHex(byte7);
-    instruction[8] = '\0';
-    */
-
     instruction[7] = byteToHex(byte0);
     instruction[6] = byteToHex(byte1);
     instruction[5] = byteToHex(byte2);
