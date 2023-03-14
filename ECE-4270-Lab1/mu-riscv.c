@@ -735,22 +735,29 @@ void ILoad_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 void Iimm_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
 	uint32_t imm0_4 = (imm << 7) >> 7;
 	uint32_t imm5_11 = imm >> 5;
+
+	if((imm >> 11) == 1){
+		uint32_t Shift =0xFFFFFFFF;
+		Shift = Shift << 12;
+		imm = Shift + imm;
+	}
+
 	switch (f3)
 	{
 	case 0: //addi
-		printf("addi r%d, r%d, %d\n", rd, rs1, imm);
+		printf("addi r%d, r%d, %d\n", rd, rs1, (int)imm);
 		break;
 
 	case 4: //xori
-		printf("xori r%d, r%d, %d\n", rd, rs1, imm);
+		printf("xori r%d, r%d, %d\n", rd, rs1, (int)imm);
 		break;
 	
 	case 6: //ori
-		printf("ori r%d, r%d, %d\n", rd, rs1, imm);
+		printf("ori r%d, r%d, %d\n", rd, rs1, (int)imm);
 		break;
 	
 	case 7: //andi
-		printf("andi r%d, r%d, %d\n", rd, rs1, imm);
+		printf("andi r%d, r%d, %d\n", rd, rs1, (int)imm);
 		break;
 	
 	case 1: //slli
@@ -790,18 +797,24 @@ void S_Print(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t im
 	// Recombine immediate
 	uint32_t imm = (imm11 << 5) + imm4;
 
+	if((imm >> 11) == 1){
+		uint32_t Shift =0xFFFFFFFF;
+		Shift = Shift << 12;
+		imm = Shift + imm;
+	}
+
 	switch (f3)
 	{
 	case 0: //sb
-		printf("sb r%d, %d(r%d)\n", rs2, imm, rs1);
+		printf("sb r%d, %d(r%d)\n", rs2, (int)imm, rs1);
 		break;
 	
 	case 1: //sh
-		printf("sh r%d, %d(r%d)\n", rs2, imm, rs1);
+		printf("sh r%d, %d(r%d)\n", rs2, (int)imm, rs1);
 		break;
 
 	case 2: //sw
-		printf("sw r%d, %d(r%d)\n", rs2, imm, rs1);
+		printf("sw r%d, %d(r%d)\n", rs2, (int)imm, rs1);
 		break;
 
 	default:
