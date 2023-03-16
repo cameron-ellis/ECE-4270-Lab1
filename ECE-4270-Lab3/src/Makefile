@@ -1,6 +1,16 @@
-mu-mips: mu-mips.c
-	gcc -Wall -g -O2 $^ -o $@
+CC=gcc
+CFLAGS=
+SOURCES	:= $(wildcard *.c)
+OBJS := $(SOURCES:%.c=%.o)
 
-.PHONY: clean
-clean:
-	rm -rf *.o *~ mu-mips
+TARGET := translate
+
+.PHONY : all
+all : $(TARGET)
+
+$(TARGET) : $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@  
+
+.PHONY	: clean
+clean	:
+	rm -rf $(TARGET) $(OBJS)
