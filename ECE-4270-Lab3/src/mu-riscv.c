@@ -363,7 +363,11 @@ void ID()
 /************************************************************/
 void IF()
 {
-	/*IMPLEMENT THIS*/
+	uint32_t addr = CURRENT_STATE.PC;
+	IF_ID.PC = addr;
+	uint32_t instruction = mem_read_32(addr);
+	IF_ID.IR = instruction;
+	NEXT_STATE.PC += 4;
 }
 
 

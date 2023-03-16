@@ -9,6 +9,10 @@ int main(int argc, char* argv[]){
     }
     char * file = argv[1];
     FILE *f = fopen(file, "r");
+    if(!f){
+        printf("File not found.\n");
+        return 1;
+    }
 
     char newfile[100] = "hex_";
     strcat(newfile, file);
