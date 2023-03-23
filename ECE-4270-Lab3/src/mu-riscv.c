@@ -664,8 +664,284 @@ void initialize() {
 /************************************************************/
 /* Print the program loaded into memory (in RISCV assembly format)    */
 /************************************************************/
+
+void R_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t f7) {
+	switch(f3){
+		case 0:
+			switch(f7){
+				case 0:		//add
+					printf("add r%d, r%d, r%d\n", rd, rs1, rs2);
+					break;
+				case 32:	//sub
+					printf("sub r%d, r%d, r%d\n", rd, rs1, rs2);
+					break;
+				default:
+					printf("WARNING: INSTRUCTION NOT FOUND!\n");
+					break;
+				}	
+			break;
+		case 6: 			//or
+			printf("or r%d, r%d, r%d\n", rd, rs1, rs2);
+			break;
+		case 7:				//and
+			printf("and r%d, r%d, r%d\n", rd, rs1, rs2);
+			break;
+		default:
+			printf("WARNING: INSTRUCTION NOT FOUND!\n");
+			break;
+	} 			
+}
+
+void ILoad_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	switch (f3)
+	{
+	case 0: //lb
+		printf("lb r%d, %d(r%d)\n", rd, imm, rs1);
+		break;
+
+	case 1: //lh
+		printf("lh r%d, %d(r%d)\n", rd, imm, rs1);
+		break;
+
+	case 2: //lw
+		printf("lw r%d, %d(r%d)\n", rd, imm, rs1);
+		break;
+	
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void Iimm_Print(uint32_t rd, uint32_t f3, uint32_t rs1, uint32_t imm) {
+	uint32_t imm0_4 = (imm << 7) >> 7;
+	uint32_t imm5_11 = imm >> 5;
+
+	if((imm >> 11) == 1){
+		uint32_t Shift =0xFFFFFFFF;
+		Shift = Shift << 12;
+		imm = Shift + imm;
+	}
+
+	switch (f3)
+	{
+	case 0: //addi
+		printf("addi r%d, r%d, %d\n", rd, rs1, (int)imm);
+		break;
+
+	case 4: //xori
+		printf("xori r%d, r%d, %d\n", rd, rs1, (int)imm);
+		break;
+	
+	case 6: //ori
+		printf("ori r%d, r%d, %d\n", rd, rs1, (int)imm);
+		break;
+	
+	case 7: //andi
+		printf("andi r%d, r%d, %d\n", rd, rs1, (int)imm);
+		break;
+	
+	case 1: //slli
+		printf("slli r%d, r%d, %d\n", rd, rs1, imm0_4);
+		break;
+	
+	case 5: //srli and srai
+		switch (imm5_11)
+		{
+		case 0: //srli
+			printf("srli r%d, r%d, %d\n", rd, rs1, imm0_4);
+			break;
+
+		case 32: //srai
+			//NEXT_STATE.REGS[rd] = NEXT_STATE.REGS[rs1] >> imm0_4;
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	
+	case 2:
+		break;
+
+	case 3:
+		break;
+
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void S_Print(uint32_t imm4, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm11) {
+	// Recombine immediate
+	uint32_t imm = (imm11 << 5) + imm4;
+
+	if((imm >> 11) == 1){
+		uint32_t Shift =0xFFFFFFFF;
+		Shift = Shift << 12;
+		imm = Shift + imm;
+	}
+
+	switch (f3)
+	{
+	case 0: //sb
+		printf("sb r%d, %d(r%d)\n", rs2, (int)imm, rs1);
+		break;
+	
+	case 1: //sh
+		printf("sh r%d, %d(r%d)\n", rs2, (int)imm, rs1);
+		break;
+
+	case 2: //sw
+		printf("sw r%d, %d(r%d)\n", rs2, (int)imm, rs1);
+		break;
+
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void B_Print(uint32_t imm4_11, uint32_t f3, uint32_t rs1, uint32_t rs2, uint32_t imm12_5) {
+	//Get full immediate number.
+	uint32_t imm12_1 = 0;
+	uint32_t immFull = 0;
+    uint32_t temp = 0;
+    
+    temp = (imm4_11 << 27) >> 28;
+    imm12_1 += temp;
+    
+    temp = ((imm12_5 << 26) >> 22);
+    imm12_1 += temp;
+
+    temp = ((imm4_11 << 31) >> 21);
+    imm12_1 += temp;
+
+    temp = ((imm12_5 >> 6) << 11);
+    imm12_1 += temp;
+
+	immFull = imm12_1;
+
+	if((imm12_5 >> 6) == 1){
+			uint32_t Shift =0xFFFFFFFF;
+			Shift = Shift << 12;
+			immFull = Shift + immFull;
+		}
+
+	switch (f3)
+	{
+	case 0: //beq
+		printf("beq r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+	
+	case 1: //bne
+		printf("bne r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+
+	case 4: //blt
+		printf("blt r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+
+	case 5:	//bge
+		printf("bge r%d, r%d, %d\n", rs1, rs2, (int)immFull);
+		break;
+
+	case 6: //bltu
+		printf("bltu r%d, r%d, %d\n", rs1, rs2, imm12_1);
+		break;
+
+	case 7: //bgeu
+		printf("bgeu r%d, r%d, %d\n", rs1, rs2, imm12_1);
+		break;
+
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void J_Print() {
+	// hi
+}
+
+void U_Print() {
+	// hi
+}
+
+/************************************************************/
+/* Print the instruction at given memory address (in RISCV assembly format)    */
+/************************************************************/
+void print_instruction(uint32_t addr){
+	uint32_t instruction = mem_read_32(addr);
+	//printf("%x\n", instruction);
+
+	uint32_t opcode = (instruction << 25) >> 25;
+	uint32_t rd, f3, rs1, rs2, f7, imm, imm4, imm11;
+	
+	switch(opcode){
+		case 51:		//R-type
+			rd = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			f7 = instruction >> 25;
+			R_Print(rd, f3, rs1, rs2, f7);	
+			break;		
+		case 19:		//I
+			rd = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			imm = instruction >> 20;
+			Iimm_Print(rd, f3, rs1, imm);
+			break;
+		case 3:			//I-type loads
+			rd = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			imm = instruction >> 20; 		
+			ILoad_Print(rd, f3, rs1, imm);
+			break;
+		case 35:		//S
+			imm4 = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			imm11 = instruction >> 25;
+			S_Print(imm4, f3, rs1, rs2, imm11);
+			break;
+		case 99:		//B
+			imm4 = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			imm11 = instruction >> 25;
+			B_Print(imm4, f3, rs1, rs2, imm11);
+			break;
+		case 111:		//jal
+			J_Print();
+			break;
+		case 103:		//jalr
+			break;
+		default:
+			printf("WARNING: INSTRUCTION NOT FOUND!\n");
+			break;
+	}
+}
+
 void print_program(){
-	/*IMPLEMENT THIS*/
+	int i;
+	uint32_t addr;
+	
+	for(i=0; i<PROGRAM_SIZE; i++){
+		addr = MEM_TEXT_BEGIN + (i*4);
+		printf("[0x%x]\t", addr);
+		print_instruction(addr);
+	}
 }
 
 /************************************************************/
