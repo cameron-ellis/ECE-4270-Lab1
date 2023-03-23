@@ -3,7 +3,7 @@ CFLAGS=
 SOURCES	:= $(wildcard *.c)
 OBJS := $(SOURCES:%.c=%.o)
 
-TARGET := translate
+TARGET := riscv-pipeline
 
 .PHONY : all
 all : $(TARGET)

@@ -326,6 +326,7 @@ void handle_pipeline()
 void WB()
 {
 	/*IMPLEMENT THIS*/
+	//free instName or chandler will be sad :(
 }
 
 /************************************************************/
@@ -333,7 +334,7 @@ void WB()
 /************************************************************/
 void MEM()
 {
-	/*IMPLEMENT THIS*/
+	MEM_WB = EX_MEM;
 }
 
 /************************************************************/
@@ -341,15 +342,300 @@ void MEM()
 /************************************************************/
 void EX()
 {
-	/*IMPLEMENT THIS*/
+	EX_MEM = ID_EX;
 }
 
 /************************************************************/
 /* instruction decode (ID) pipeline stage:                                                         */
 /************************************************************/
+void R_Decode(uint32_t f3, uint32_t f7) {
+	switch(f3){
+		case 0:
+			switch(f7){
+				case 0:		//add
+					ID_EX.instName = "add";
+					break;
+				case 32:	//sub
+					ID_EX.instName = "sub";
+					break;
+				default:
+					RUN_FLAG = FALSE;
+					break;
+				}	
+			break;
+		case 1: 			//sll
+			ID_EX.instName = "sll";
+			break;
+		case 2:				//slt
+			RUN_FLAG = FALSE;
+			break;
+		case 3:				//sltu
+			RUN_FLAG = FALSE;
+			break;
+		case 4:				//xor
+			RUN_FLAG = FALSE;
+			break;
+		case 5:
+			switch(f7){
+				case 0:		//srl
+					ID_EX.instName = "srl";
+					break;
+				case 32:	//sra
+					RUN_FLAG = FALSE;
+					break;
+				default:
+					RUN_FLAG = FALSE;
+					break;
+				}	
+			break;
+		case 6: 			//or
+			ID_EX.instName = "or";
+			break;
+		case 7:				//and
+			ID_EX.instName = "and";
+			break;
+		default:
+			RUN_FLAG = FALSE;
+			break;
+	} 			
+}
+
+void ILoad_Decode(uint32_t f3) {
+	switch (f3)
+	{
+	case 0: //lb
+		ID_EX.instName = "lb";
+		break;
+
+	case 1: //lh
+		ID_EX.instName = "lh";
+		break;
+
+	case 2: //lw
+		ID_EX.instName = "lw";
+		break;
+	
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void Iimm_Decode(uint32_t f3, uint32_t imm) {
+	uint32_t imm5_11 = imm >> 5;
+	switch (f3)
+	{
+	case 0: //addi
+		ID_EX.instName = "addi";
+		break;
+
+	case 4: //xori
+		ID_EX.instName = "xori";
+		break;
+	
+	case 6: //ori
+		ID_EX.instName = "ori";
+		break;
+	
+	case 7: //andi
+		ID_EX.instName = "andi";
+		break;
+	
+	case 1: //slli
+		ID_EX.instName = "slli";
+		break;
+	
+	case 5: //srli and srai
+		switch (imm5_11)
+		{
+		case 0: //srli
+			ID_EX.instName = "srli";
+			break;
+
+		case 32: //srai
+			RUN_FLAG = FALSE;
+			break;
+		
+		default:
+			RUN_FLAG = FALSE;
+			break;
+		}
+		break;
+	
+	case 2:
+		break;
+
+	case 3:
+		break;
+
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void S_Decode(uint32_t imm4, uint32_t f3, uint32_t imm11) {
+	// Recombine immediate
+	uint32_t imm = (imm11 << 5) + imm4;
+	ID_EX.imm = imm;
+
+	switch (f3)
+	{
+	case 0: //sb
+		ID_EX.instName = "sb";
+		break;
+	
+	case 1: //sh
+		ID_EX.instName = "sh";
+		break;
+
+	case 2: //sw
+		ID_EX.instName = "sw";
+		break;
+
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
+void B_Decode(uint32_t imm4_11, uint32_t f3, uint32_t imm12_5) {
+    //Get full immediate number.
+	uint32_t imm12_1 = 0;
+	uint32_t immFull = 0;
+    uint32_t temp = 0;
+    
+    temp = (imm4_11 << 27) >> 28;
+    imm12_1 += temp;
+    
+    temp = ((imm12_5 << 26) >> 22);
+    imm12_1 += temp;
+
+    temp = ((imm4_11 << 31) >> 21);
+    imm12_1 += temp;
+
+    temp = ((imm12_5 >> 6) << 11);
+    imm12_1 += temp;
+
+	immFull = imm12_1;
+	ID_EX.imm = immFull;
+
+	if((imm12_5 >> 6) == 1){
+			uint32_t Shift =0xFFFFFFFF;
+			Shift = Shift << 12;
+			immFull = Shift + immFull;
+		}
+
+	switch (f3)
+	{
+	case 0: //beq
+		ID_EX.instName = "beq";
+		break;
+	
+	case 1: //bne
+		ID_EX.instName = "bne";
+		break;
+
+	case 4: //blt
+		ID_EX.instName = "blt";
+		break;
+
+	case 5:	//bge
+		ID_EX.instName = "bge";
+		break;
+
+	case 6: //bltu
+		ID_EX.instName = "bltu";
+		break;
+
+	case 7: //bgeu
+		ID_EX.instName = "bgeu";
+		break;
+
+	default:
+		printf("Invalid instruction\n");
+		RUN_FLAG = FALSE;
+		break;
+	}
+}
+
 void ID()
 {
-	/*IMPLEMENT THIS*/
+	ID_EX = IF_ID;
+	ID_EX.instName = malloc(sizeof(char) * 7);
+	if(!ID_EX.instName){
+		RUN_FLAG = FALSE;
+		printf("mawwoc faiwiuwe\n"); //just for you chandler <3
+		return;
+	}
+	uint32_t instruction = ID_EX.IR;
+	uint32_t opcode = (instruction << 25) >> 25;
+	uint32_t rd, f3, rs1, rs2, f7, imm, imm4, imm11;
+	switch(opcode){
+		case 51:		//R-type
+			rd = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			f7 = instruction >> 25;
+			ID_EX.A = rs1;
+			ID_EX.B = rs2;
+			ID_EX.imm = rd;
+			R_Decode(f3, f7);	
+			break;		
+		case 19:		//I
+			rd = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			imm = instruction >> 20;
+			imm11 = instruction >> 25;
+			ID_EX.A = rs1;
+			ID_EX.B = rd;
+			ID_EX.imm = imm;
+			Iimm_Decode(f3, imm);
+			break;
+		case 3:			//I-type loads
+			rd = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			imm = instruction >> 20; 
+			ID_EX.A = rs1;
+			ID_EX.B = rd;
+			ID_EX.imm = imm;		
+			ILoad_Decode(f3);
+			break;
+		case 35:		//S
+			imm4 = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			imm11 = instruction >> 25;
+			ID_EX.A = rs1;
+			ID_EX.B = rs2;
+			S_Decode(imm4, f3, imm11);
+			break;
+		case 99:		//B -- needs some weird shit technically but nah fam
+			imm4 = (instruction << 20) >> 27;
+			f3 = (instruction << 17) >> 29;
+			rs1 = (instruction << 12) >> 27;
+			rs2 = (instruction << 7) >> 27;
+			imm11 = instruction >> 25;
+			ID_EX.A = rs1;
+			ID_EX.B = rs2;
+			B_Decode(imm4, f3, imm11);
+			break;
+		case 111:		//jal
+			break;
+		case 103:		//jalr
+			break;
+		default:
+			RUN_FLAG = FALSE;
+			return;
+			break;
+	}
 }
 
 /************************************************************/
