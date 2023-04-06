@@ -325,7 +325,32 @@ void handle_pipeline()
 /************************************************************/
 void WB()
 {
-	/*IMPLEMENT THIS*/
+	uint32_t instruction = MEM_WB.IR;
+	uint32_t opcode = (instruction << 25) >> 25;
+	switch(opcode){
+		case 51:		//R-type
+			NEXT_STATE.REGS[MEM_WB.imm] = MEM_WB.ALUOutput;
+			break;		
+		case 19:		//I
+			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.ALUOutput;
+			break;
+		case 3:			//I-type loads
+			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.LMD;
+			break;
+		case 35:		//S
+			break;
+		case 99:		//B -- needs some weird shit technically but nah fam
+			break;
+		case 111:		//jal
+			break;
+		case 103:		//jalr
+			break;
+		default:
+			RUN_FLAG = FALSE;
+			return;
+			break;
+	}
+	free(MEM_WB.instName);
 	//free instName or chandler will be sad :(
 }
 
@@ -336,18 +361,20 @@ void MEM()
 {
 	MEM_WB = EX_MEM;
 
+	char * inst_name = MEM_WB.instName;
+
 	//Load
 	if (strncmp(inst_name, "lb", sizeof(char)*7) == 0)
     {
-        MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOut)) & 0xFF);
+        MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFF);
     }
 	if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
     {
-        MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOut)) & 0xFFFF);
+        MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFFFF);
     }
 	if (strncmp(inst_name, "lw", sizeof(char)*7) == 0)
     {
-        MEM_WB.LMD = mem_read_32(MEM_WB.ALUOut);
+        MEM_WB.LMD = mem_read_32(MEM_WB.ALUOutput);
     }
 	if (strncmp(inst_name, "lbu", sizeof(char)*7) == 0)
     {
@@ -361,15 +388,15 @@ void MEM()
 	//Store
 	if (strncmp(inst_name, "sb", sizeof(char)*7) == 0)
     {
-        mem_write_32((MEM_WB.ALUOut), MEM_WB.B);
+        mem_write_32((MEM_WB.ALUOutput), MEM_WB.B);
     }
 	if (strncmp(inst_name, "sh", sizeof(char)*7) == 0)
     {
-        mem_write_32((MEM_WB.ALUOut), MEM_WB.B);
+        mem_write_32((MEM_WB.ALUOutput), MEM_WB.B);
     }
 	if (strncmp(inst_name, "sw", sizeof(char)*7) == 0)
     {
-        mem_write_32((MEM_WB.ALUOut), MEM_WB.B);
+        mem_write_32((MEM_WB.ALUOutput), MEM_WB.B);
     }
 
 }
