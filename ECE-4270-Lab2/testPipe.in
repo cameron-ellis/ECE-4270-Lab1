@@ -1,0 +1,7 @@
+addi x10, x0, 50
+addi x11, x0, 100
+addi x12, x0, 10
+addi x13, x0, 5
+addi x14, x0, 25
+addi x15, x0. 30
+add x16, x10, x10
