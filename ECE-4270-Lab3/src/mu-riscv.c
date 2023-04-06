@@ -343,6 +343,146 @@ void MEM()
 void EX()
 {
 	EX_MEM = ID_EX;
+
+    char * inst_name = EX_MEM.instName;
+
+    // R Type Instructions
+    if (strncmp(inst_name, "add",sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.B;
+    }
+    if (strncmp(inst_name, "sub",sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A - EX_MEM.B;
+    }
+    if (strncmp(inst_name, "xor",sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "or",sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A | EX_MEM.B;
+    }
+    if (strncmp(inst_name, "and",sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A & EX_MEM.B;
+    }
+    if (strncmp(inst_name, "sll",sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A << EX_MEM.B;
+    }
+    if (strncmp(inst_name, "srl",sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A >> EX_MEM.B;
+    }
+    if (strncmp(inst_name, "sra",sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "slt",sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "sltu", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    // I Type Instructions
+    if (strncmp(inst_name, "addi", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "xori", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "ori", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A | EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "andi", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A & EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "slli", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A << EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "srli", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A >> EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "srai", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "slti", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "sltiu", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "lb", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "lw", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "lbu", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "lhu", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    // S Type Instructions
+    if (strncmp(inst_name, "sb", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "sh", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    if (strncmp(inst_name, "sw", sizeof(char)*7) == 0)
+    {
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
+    }
+    // B Type Instructions
+    if (strncmp(inst_name, "beq", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "bne", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "blt", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "bge", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "bltu", sizeof(char)*7) == 0)
+    {
+        RUN_FLAG = FALSE;
+    }
+    if (strncmp(inst_name, "bgeu", sizeof(char)*7) == 0)
+    {
+       RUN_FLAG = FALSE;
+    }
+
 }
 
 /************************************************************/
@@ -581,9 +721,9 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			f7 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
-			ID_EX.imm = rd;		//destination stored in imm
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = REGS[rs2];
+			ID_EX.imm = rd;
 			R_Decode(f3, f7);	
 			break;		
 		case 19:		//I
@@ -592,8 +732,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rd;		//destination stored in B
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = rd;
 			ID_EX.imm = imm;
 			Iimm_Decode(f3, imm);
 			break;
@@ -602,8 +742,8 @@ void ID()
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20; 
-			ID_EX.A = rs1;
-			ID_EX.B = rd;		//destination stored in B
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = rd;
 			ID_EX.imm = imm;		
 			ILoad_Decode(f3);
 			break;
@@ -613,8 +753,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = REGS[rs2];
 			S_Decode(imm4, f3, imm11);
 			break;
 		case 99:		//B -- needs some weird shit technically but nah fam
@@ -623,8 +763,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = REGS[rs2];
 			B_Decode(imm4, f3, imm11);
 			break;
 		case 111:		//jal
