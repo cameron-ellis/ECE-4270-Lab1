@@ -583,7 +583,7 @@ void ID()
 			f7 = instruction >> 25;
 			ID_EX.A = rs1;
 			ID_EX.B = rs2;
-			ID_EX.imm = rd;
+			ID_EX.imm = rd;		//destination stored in imm
 			R_Decode(f3, f7);	
 			break;		
 		case 19:		//I
@@ -593,7 +593,7 @@ void ID()
 			imm = instruction >> 20;
 			imm11 = instruction >> 25;
 			ID_EX.A = rs1;
-			ID_EX.B = rd;
+			ID_EX.B = rd;		//destination stored in B
 			ID_EX.imm = imm;
 			Iimm_Decode(f3, imm);
 			break;
@@ -603,7 +603,7 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20; 
 			ID_EX.A = rs1;
-			ID_EX.B = rd;
+			ID_EX.B = rd;		//destination stored in B
 			ID_EX.imm = imm;		
 			ILoad_Decode(f3);
 			break;
@@ -948,7 +948,20 @@ void print_program(){
 /* Print the current pipeline                                                                                    */
 /************************************************************/
 void show_pipeline(){
-	/*IMPLEMENT THIS*/
+	printf("Current PC:\t\t%d\n", NEXT_STATE.PC);
+	printf("IF/ID.IR:\t\t%x\n", IF_ID.IR);
+	printf("IF/ID.PC:\t\t%d\n\n", IF_ID.PC);
+	printf("ID/EX.IR:\t\t%x\n", ID_EX.IR);
+	printf("ID/EX.A:\t\t%d\n", ID_EX.A);
+	printf("ID/EX.B:\t\t%d\n", ID_EX.B);
+	printf("ID/EX.ALUOut:\t\t%d\n\n", ID_EX.ALUOutput);
+	printf("EX/MEM.IR:\t\t%x\n", EX_MEM.IR);
+	printf("EX/MEM.A:\t\t%d\n", EX_MEM.A);
+	printf("EX/MEM.B:\t\t%d\n", EX_MEM.B);
+	printf("EX/MEM.ALUOut:\t\t%d\n\n", EX_MEM.ALUOutput);
+	printf("MEM/WB.IR:\t\t%x\n", MEM_WB.IR);
+	printf("MEM/WB.ALUOut:\t\t%d\n", MEM_WB.ALUOutput);
+	printf("MEM/WB.LMD:\t\t%d\n\n", MEM_WB.LMD);
 }
 
 /***************************************************************/
