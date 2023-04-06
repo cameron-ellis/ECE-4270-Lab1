@@ -581,8 +581,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			f7 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = REGS[rs2];
 			ID_EX.imm = rd;
 			R_Decode(f3, f7);	
 			break;		
@@ -592,7 +592,7 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
+			ID_EX.A = REGS[rs1];
 			ID_EX.B = rd;
 			ID_EX.imm = imm;
 			Iimm_Decode(f3, imm);
@@ -602,7 +602,7 @@ void ID()
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20; 
-			ID_EX.A = rs1;
+			ID_EX.A = REGS[rs1];
 			ID_EX.B = rd;
 			ID_EX.imm = imm;		
 			ILoad_Decode(f3);
@@ -613,8 +613,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = REGS[rs2];
 			S_Decode(imm4, f3, imm11);
 			break;
 		case 99:		//B -- needs some weird shit technically but nah fam
@@ -623,8 +623,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = REGS[rs1];
+			ID_EX.B = REGS[rs2];
 			B_Decode(imm4, f3, imm11);
 			break;
 		case 111:		//jal
