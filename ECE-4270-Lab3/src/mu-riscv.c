@@ -325,6 +325,14 @@ void handle_pipeline()
 /************************************************************/
 void WB()
 {
+	INSTRUCTION_COUNT++;
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 5){
+		RUN_FLAG = FALSE;
+		return;
+	}
+	if(INSTRUCTION_COUNT <= 4){
+		return;
+	}
 	uint32_t instruction = MEM_WB.IR;
 	uint32_t opcode = (instruction << 25) >> 25;
 	switch(opcode){
@@ -350,15 +358,25 @@ void WB()
 			return;
 			break;
 	}
-	free(MEM_WB.instName);
+	//free(MEM_WB.instName);
 	//free instName or chandler will be sad :(
 }
 
-/************************************************************/
-/* memory access (MEM) pipeline stage:                                                          */
-/************************************************************/
+
+uint32_t byte_to_word(uint8_t byte)
+{
+    return (byte & 0x80) ? (byte | 0xffffff80) : byte;
+}
+
+uint32_t half_to_word(uint16_t half)
+{
+    return (half & 0x8000) ? (half | 0xffff8000) : half;
+}
+
+
 void MEM()
 {
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 4 || INSTRUCTION_COUNT <= 3) return;
 	MEM_WB = EX_MEM;
 
 	char * inst_name = MEM_WB.instName;
@@ -370,7 +388,7 @@ void MEM()
     }
 	if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
     {
-        MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFFFF);
+        MEM_WB.LMD = half_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFFFF);
     }
 	if (strncmp(inst_name, "lw", sizeof(char)*7) == 0)
     {
@@ -406,6 +424,7 @@ void MEM()
 /************************************************************/
 void EX()
 {
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 3 || INSTRUCTION_COUNT <= 2) return;
 	EX_MEM = ID_EX;
 
     char * inst_name = EX_MEM.instName;
@@ -707,7 +726,7 @@ void S_Decode(uint32_t imm4, uint32_t f3, uint32_t imm11) {
 }
 
 void B_Decode(uint32_t imm4_11, uint32_t f3, uint32_t imm12_5) {
-    //Get full immediate number.
+	//Get full immediate number.
 	uint32_t imm12_1 = 0;
 	uint32_t immFull = 0;
     uint32_t temp = 0;
@@ -768,6 +787,7 @@ void B_Decode(uint32_t imm4_11, uint32_t f3, uint32_t imm12_5) {
 
 void ID()
 {
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 2 || INSTRUCTION_COUNT <= 1) return;
 	ID_EX = IF_ID;
 	ID_EX.instName = malloc(sizeof(char) * 7);
 	if(!ID_EX.instName){
@@ -847,6 +867,7 @@ void ID()
 /************************************************************/
 void IF()
 {
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 1) return;
 	uint32_t addr = CURRENT_STATE.PC;
 	IF_ID.PC = addr;
 	uint32_t instruction = mem_read_32(addr);
@@ -860,6 +881,7 @@ void IF()
 /************************************************************/
 void initialize() {
 	init_memory();
+	INSTRUCTION_COUNT = 0;
 	CURRENT_STATE.PC = MEM_TEXT_BEGIN;
 	NEXT_STATE = CURRENT_STATE;
 	RUN_FLAG = TRUE;
