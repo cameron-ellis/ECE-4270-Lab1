@@ -337,7 +337,7 @@ void WB()
 	uint32_t opcode = (instruction << 25) >> 25;
 	switch(opcode){
 		case 51:		//R-type
-			NEXT_STATE.REGS[MEM_WB.imm] = MEM_WB.ALUOutput;
+			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.ALUOutput;
 			break;		
 		case 19:		//I
 			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.ALUOutput;
@@ -432,11 +432,11 @@ void EX()
     // R Type Instructions
     if (strncmp(inst_name, "add",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.B;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "sub",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = EX_MEM.A - EX_MEM.B;
+        EX_MEM.ALUOutput = EX_MEM.A - EX_MEM.imm;
     }
     if (strncmp(inst_name, "xor",sizeof(char)*7) == 0)
     {
@@ -444,19 +444,19 @@ void EX()
     }
     if (strncmp(inst_name, "or",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = EX_MEM.A | EX_MEM.B;
+        EX_MEM.ALUOutput = EX_MEM.A | EX_MEM.imm;
     }
     if (strncmp(inst_name, "and",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = EX_MEM.A & EX_MEM.B;
+        EX_MEM.ALUOutput = EX_MEM.A & EX_MEM.imm;
     }
     if (strncmp(inst_name, "sll",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = EX_MEM.A << EX_MEM.B;
+        EX_MEM.ALUOutput = EX_MEM.A << EX_MEM.imm;
     }
     if (strncmp(inst_name, "srl",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = EX_MEM.A >> EX_MEM.B;
+        EX_MEM.ALUOutput = EX_MEM.A >> EX_MEM.imm;
     }
     if (strncmp(inst_name, "sra",sizeof(char)*7) == 0)
     {
@@ -806,8 +806,8 @@ void ID()
 			rs2 = (instruction << 7) >> 27;
 			f7 = instruction >> 25;
 			ID_EX.A = NEXT_STATE.REGS[rs1];
-			ID_EX.B = NEXT_STATE.REGS[rs2];
-			ID_EX.imm = rd;
+			ID_EX.imm = NEXT_STATE.REGS[rs2];
+			ID_EX.B = rd;
 			R_Decode(f3, f7);	
 			break;		
 		case 19:		//I
