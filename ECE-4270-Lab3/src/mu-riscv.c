@@ -312,6 +312,17 @@ void load_program() {
 	fclose(fp);
 }
 
+void nop(CPU_Pipeline_Reg target){
+	target.IR = 0;
+	target.A = 0;
+	target.B = 0;
+	target.imm = 0;
+	target.ALUOutput = 0;
+	target.LMD = 0;
+	target.instName = NULL;
+	target.RegWrite = 0;
+}
+
 /************************************************************/
 /* maintain the pipeline                                                                                           */
 /************************************************************/
@@ -573,6 +584,8 @@ void EX()
        RUN_FLAG = FALSE;
     }
 
+	//THIS SHOULD BE ONLY WITHIN INSTRUCTIONS THAT USE THE ALU
+	EX_MEM.RegWrite = 1;
 }
 
 /************************************************************/
@@ -868,19 +881,19 @@ void ID()
 			return;
 			break;
 	}
-	if (EX_MEM.ALUOutput & (EX_MEM.imm != 0) & (EX_MEM.imm = ID_EX.A))
+	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.A))
 	{
 
 	}
-	if (EX_MEM.ALUOutput & (EX_MEM.imm != 0) & (EX_MEM.imm = ID_EX.B))
+	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.imm))
 	{
 
 	}
-	if (MEM_WB.LMD & (MEM_WB.imm != 0) & (MEM_WB.imm = ID_EX.A))
+	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B = ID_EX.A))
 	{
 
 	}
-	if (MEM_WB.LMD & (MEM_WB.imm != 0) & (MEM_WB.imm = ID_EX.B))
+	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B = ID_EX.imm))
 	{
 		
 	}
@@ -896,6 +909,7 @@ void IF()
 	IF_ID.PC = addr;
 	uint32_t instruction = mem_read_32(addr);
 	IF_ID.IR = instruction;
+	IF_ID.RegWrite = 0;
 	NEXT_STATE.PC += 4;
 }
 

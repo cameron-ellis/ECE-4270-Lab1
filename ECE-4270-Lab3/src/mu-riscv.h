@@ -54,6 +54,7 @@ typedef struct CPU_Pipeline_Reg_Struct{
 	uint32_t ALUOutput;
 	uint32_t LMD;
 	char * instName;
+	uint8_t RegWrite;
 } CPU_Pipeline_Reg;
 
 /***************************************************************/
