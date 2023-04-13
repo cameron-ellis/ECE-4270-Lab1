@@ -219,6 +219,13 @@ void handle_command() {
 			CURRENT_STATE.HI = hi_reg_value;
 			NEXT_STATE.HI = hi_reg_value;
 			break;
+		case 'F':
+		case 'f':
+			if (scanf("%d", &ENABLE_FORWARDING) != 1) {
+				break;
+			}
+			ENABLE_FORWARDING == 0 ? printf("Forwarding OFF\n") : printf("Forwarding ON\n");
+			break;
 		case 'L':
 		case 'l':
 			if (scanf("%i", &lo_reg_value) != 1){
@@ -798,6 +805,7 @@ void ID()
 	uint32_t instruction = ID_EX.IR;
 	uint32_t opcode = (instruction << 25) >> 25;
 	uint32_t rd, f3, rs1, rs2, f7, imm, imm4, imm11;
+
 	switch(opcode){
 		case 51:		//R-type
 			rd = (instruction << 20) >> 27;
@@ -859,6 +867,22 @@ void ID()
 			RUN_FLAG = FALSE;
 			return;
 			break;
+	}
+	if (EX_MEM.ALUOutput & (EX_MEM.imm != 0) & (EX_MEM.imm = ID_EX.A))
+	{
+
+	}
+	if (EX_MEM.ALUOutput & (EX_MEM.imm != 0) & (EX_MEM.imm = ID_EX.B))
+	{
+
+	}
+	if (MEM_WB.LMD & (MEM_WB.imm != 0) & (MEM_WB.imm = ID_EX.A))
+	{
+
+	}
+	if (MEM_WB.LMD & (MEM_WB.imm != 0) & (MEM_WB.imm = ID_EX.B))
+	{
+		
 	}
 }
 
