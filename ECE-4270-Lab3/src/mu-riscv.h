@@ -75,6 +75,7 @@ CPU_Pipeline_Reg IF_ID;
 CPU_Pipeline_Reg ID_EX;
 CPU_Pipeline_Reg EX_MEM;
 CPU_Pipeline_Reg MEM_WB;
+int endSimCheck;
 
 char prog_file[32];
 int ENABLE_FORWARDING = FALSE;

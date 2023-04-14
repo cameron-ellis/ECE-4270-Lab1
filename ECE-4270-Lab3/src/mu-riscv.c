@@ -87,6 +87,8 @@ void run(int num_cycles) {
 	int i;
 	for (i = 0; i < num_cycles; i++) {
 		if (RUN_FLAG == FALSE) {
+			
+			printf("i = %d\n",i);
 			printf("Simulation Stopped.\n\n");
 			break;
 		}
@@ -312,15 +314,18 @@ void load_program() {
 	fclose(fp);
 }
 
-void nop(CPU_Pipeline_Reg target){
-	target.IR = 0;
-	target.A = 0;
-	target.B = 0;
-	target.imm = 0;
-	target.ALUOutput = 0;
-	target.LMD = 0;
-	target.instName = NULL;
-	target.RegWrite = 0;
+void nop(CPU_Pipeline_Reg * target){
+	
+	target->PC = 0;
+	target->IR = 0;
+	target->A = 0;
+	target->B = 0;
+	target->imm = 0;
+	target->ALUOutput = 0;
+	target->LMD = 0;
+	target->instName = NULL;
+	target->RegWrite = 0;
+
 }
 
 /************************************************************/
@@ -343,6 +348,7 @@ void handle_pipeline()
 /************************************************************/
 void WB()
 {
+	/*
 	INSTRUCTION_COUNT++;
 	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 5){
 		RUN_FLAG = FALSE;
@@ -351,14 +357,23 @@ void WB()
 	if(INSTRUCTION_COUNT <= 4){
 		return;
 	}
+	*/
+	
+	if(MEM_WB.PC == 0){
+		return;
+	}
+
 	uint32_t instruction = MEM_WB.IR;
 	uint32_t opcode = (instruction << 25) >> 25;
 	switch(opcode){
+		case 0:
+			break;
 		case 51:		//R-type
 			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.ALUOutput;
 			break;		
 		case 19:		//I
 			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.ALUOutput;
+			printf("WB I %d\n",MEM_WB.B);
 			break;
 		case 3:			//I-type loads
 			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.LMD;
@@ -394,8 +409,17 @@ uint32_t half_to_word(uint16_t half)
 
 void MEM()
 {
-	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 4 || INSTRUCTION_COUNT <= 3) return;
+	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 4 || INSTRUCTION_COUNT <= 3) return;
+	
 	MEM_WB = EX_MEM;
+	
+	if(MEM_WB.PC == 0){
+		return;
+	}
+
+	if(MEM_WB.instName == NULL){
+		return;
+	}
 
 	char * inst_name = MEM_WB.instName;
 
@@ -404,6 +428,7 @@ void MEM()
     {
         MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFF);
     }
+	
 	if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
     {
         MEM_WB.LMD = half_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFFFF);
@@ -442,10 +467,18 @@ void MEM()
 /************************************************************/
 void EX()
 {
-	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 3 || INSTRUCTION_COUNT <= 2) return;
+	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 3 || INSTRUCTION_COUNT <= 2) return;
 	EX_MEM = ID_EX;
 
+	if(EX_MEM.PC == 0){
+		return;
+	}
+
     char * inst_name = EX_MEM.instName;
+
+	if(EX_MEM.instName == NULL){
+		return;
+	}
 
     // R Type Instructions
     if (strncmp(inst_name, "add",sizeof(char)*7) == 0)
@@ -807,8 +840,13 @@ void B_Decode(uint32_t imm4_11, uint32_t f3, uint32_t imm12_5) {
 
 void ID()
 {
-	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 2 || INSTRUCTION_COUNT <= 1) return;
+	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 2 || INSTRUCTION_COUNT <= 1) return;
 	ID_EX = IF_ID;
+
+	if(ID_EX.PC == 0){
+		return;
+	}
+
 	ID_EX.instName = malloc(sizeof(char) * 7);
 	if(!ID_EX.instName){
 		RUN_FLAG = FALSE;
@@ -839,6 +877,7 @@ void ID()
 			imm11 = instruction >> 25;
 			ID_EX.A = NEXT_STATE.REGS[rs1];
 			ID_EX.B = rd;
+			printf("ADDI RD: %d\n",rd);
 			ID_EX.imm = imm;
 			Iimm_Decode(f3, imm);
 			break;
@@ -881,21 +920,30 @@ void ID()
 			return;
 			break;
 	}
-	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.A))
+	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B == ID_EX.A))
 	{
+		IF_ID.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 
 	}
-	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.imm))
+	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B == ID_EX.imm) & (opcode != 19))
 	{
-
+		IF_ID.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 	}
-	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B = ID_EX.A))
+	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B == ID_EX.A))
 	{
-
+		IF_ID.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 	}
-	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B = ID_EX.imm))
+	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B == ID_EX.imm) & (opcode != 19))
 	{
-		
+		IF_ID.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 	}
 }
 
@@ -904,13 +952,22 @@ void ID()
 /************************************************************/
 void IF()
 {
-	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 1) return;
-	uint32_t addr = CURRENT_STATE.PC;
-	IF_ID.PC = addr;
-	uint32_t instruction = mem_read_32(addr);
-	IF_ID.IR = instruction;
-	IF_ID.RegWrite = 0;
-	NEXT_STATE.PC += 4;
+	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 1) return;
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE){
+		nop(&IF_ID);
+		if(endSimCheck > 5){
+			RUN_FLAG = FALSE;
+		}
+		endSimCheck++;
+	}else{
+		uint32_t addr = CURRENT_STATE.PC;
+		IF_ID.PC = addr;
+		uint32_t instruction = mem_read_32(addr);
+		IF_ID.IR = instruction;
+		IF_ID.RegWrite = 0;
+		NEXT_STATE.PC += 4;
+		INSTRUCTION_COUNT++;
+	}
 }
 
 
@@ -923,6 +980,15 @@ void initialize() {
 	CURRENT_STATE.PC = MEM_TEXT_BEGIN;
 	NEXT_STATE = CURRENT_STATE;
 	RUN_FLAG = TRUE;
+	IF_ID.instName = NULL;
+	ID_EX.instName = NULL;
+	EX_MEM.instName = NULL;
+	MEM_WB.instName = NULL;
+	IF_ID.PC = 0;
+	ID_EX.PC = 0;
+	EX_MEM.PC = 0;
+	MEM_WB.PC = 0;
+	endSimCheck = 0;
 }
 
 /************************************************************/
@@ -1215,17 +1281,23 @@ void show_pipeline(){
 	printf("Current PC:\t\t%d\n", NEXT_STATE.PC);
 	printf("IF/ID.IR:\t\t%x\n", IF_ID.IR);
 	printf("IF/ID.PC:\t\t%d\n\n", IF_ID.PC);
+
 	printf("ID/EX.IR:\t\t%x\n", ID_EX.IR);
 	printf("ID/EX.A:\t\t%d\n", ID_EX.A);
 	printf("ID/EX.B:\t\t%d\n", ID_EX.B);
-	printf("ID/EX.ALUOut:\t\t%d\n\n", ID_EX.ALUOutput);
+	printf("ID/EX.ALUOut:\t\t%d\n", ID_EX.ALUOutput);
+	printf("ID/EX.PC:\t\t%d\n\n", ID_EX.PC);
+
 	printf("EX/MEM.IR:\t\t%x\n", EX_MEM.IR);
 	printf("EX/MEM.A:\t\t%d\n", EX_MEM.A);
 	printf("EX/MEM.B:\t\t%d\n", EX_MEM.B);
-	printf("EX/MEM.ALUOut:\t\t%d\n\n", EX_MEM.ALUOutput);
+	printf("EX/MEM.ALUOut:\t\t%d\n", EX_MEM.ALUOutput);
+	printf("EX/MEM.PC:\t\t%d\n\n", EX_MEM.PC);
+
 	printf("MEM/WB.IR:\t\t%x\n", MEM_WB.IR);
 	printf("MEM/WB.ALUOut:\t\t%d\n", MEM_WB.ALUOutput);
-	printf("MEM/WB.LMD:\t\t%d\n\n", MEM_WB.LMD);
+	printf("MEM/WB.LMD:\t\t%d\n", MEM_WB.LMD);
+	printf("MEM/WB.PC:\t\t%d\n\n", MEM_WB.PC);
 }
 
 /***************************************************************/
