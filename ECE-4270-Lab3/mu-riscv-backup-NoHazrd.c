@@ -87,8 +87,6 @@ void run(int num_cycles) {
 	int i;
 	for (i = 0; i < num_cycles; i++) {
 		if (RUN_FLAG == FALSE) {
-			
-			printf("i = %d\n",i);
 			printf("Simulation Stopped.\n\n");
 			break;
 		}
@@ -314,18 +312,15 @@ void load_program() {
 	fclose(fp);
 }
 
-void nop(CPU_Pipeline_Reg * target){
-	
-	target->PC = 0;
-	target->IR = 0;
-	target->A = 0;
-	target->B = 0;
-	target->imm = 0;
-	target->ALUOutput = 0;
-	target->LMD = 0;
-	target->instName = NULL;
-	target->RegWrite = 0;
-
+void nop(CPU_Pipeline_Reg target){
+	target.IR = 0;
+	target.A = 0;
+	target.B = 0;
+	target.imm = 0;
+	target.ALUOutput = 0;
+	target.LMD = 0;
+	target.instName = NULL;
+	target.RegWrite = 0;
 }
 
 /************************************************************/
@@ -336,17 +331,11 @@ void handle_pipeline()
 	/*INSTRUCTION_COUNT should be incremented when instruction is done*/
 	/*Since we do not have branch/jump instructions, INSTRUCTION_COUNT should be incremented in WB stage */
 
-	//printf("START\n");
 	WB();
-	//printf("WB DONE, RUN FLAG = %d\n", RUN_FLAG);
 	MEM();
-	//printf("MEM DONE, RUN FLAG = %d\n", RUN_FLAG);
 	EX();
-	//printf("EX DONE, RUN FLAG = %d\n", RUN_FLAG);
 	ID();
-	//printf("ID DONE, RUN FLAG = %d\n", RUN_FLAG);
 	IF();
-	//printf("IF DONE, RUN FLAG = %d\n\n", RUN_FLAG);
 }
 
 /************************************************************/
@@ -354,7 +343,6 @@ void handle_pipeline()
 /************************************************************/
 void WB()
 {
-	/*
 	INSTRUCTION_COUNT++;
 	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 5){
 		RUN_FLAG = FALSE;
@@ -363,17 +351,9 @@ void WB()
 	if(INSTRUCTION_COUNT <= 4){
 		return;
 	}
-	*/
-	
-	if(MEM_WB.PC == 0){
-		return;
-	}
-
 	uint32_t instruction = MEM_WB.IR;
 	uint32_t opcode = (instruction << 25) >> 25;
 	switch(opcode){
-		case 0:
-			break;
 		case 51:		//R-type
 			NEXT_STATE.REGS[MEM_WB.B] = MEM_WB.ALUOutput;
 			break;		
@@ -414,17 +394,8 @@ uint32_t half_to_word(uint16_t half)
 
 void MEM()
 {
-	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 4 || INSTRUCTION_COUNT <= 3) return;
-	
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 4 || INSTRUCTION_COUNT <= 3) return;
 	MEM_WB = EX_MEM;
-	
-	if(MEM_WB.PC == 0){
-		return;
-	}
-
-	if(MEM_WB.instName == NULL){
-		return;
-	}
 
 	char * inst_name = MEM_WB.instName;
 
@@ -433,7 +404,6 @@ void MEM()
     {
         MEM_WB.LMD = byte_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFF);
     }
-	
 	if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
     {
         MEM_WB.LMD = half_to_word((mem_read_32(MEM_WB.ALUOutput)) & 0xFFFF);
@@ -472,40 +442,19 @@ void MEM()
 /************************************************************/
 void EX()
 {
-	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 3 || INSTRUCTION_COUNT <= 2) return;
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 3 || INSTRUCTION_COUNT <= 2) return;
 	EX_MEM = ID_EX;
 
-	if(EX_MEM.PC == 0){
-		return;
-	}
-
     char * inst_name = EX_MEM.instName;
-
-	if(EX_MEM.instName == NULL){
-		return;
-	}
-
-	//Sets the inputs for the ALU.
-	//fowardFlag = 0: sets inputs to normal A and imm registers.
-	//forwardFlag = 1: Sets the inputs to the forward value.
-	if(forwardFlag == 0){
-
-	}else
-	if(forwardFlag == 1){
-
-	}else{
-		prinf("EX forwardFlag ERROR\n");
-		RUN_FLAG = 0;
-	}
 
     // R Type Instructions
     if (strncmp(inst_name, "add",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + NEXT_STATE.REGS[EX_MEM.imm];
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "sub",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] - NEXT_STATE.REGS[EX_MEM.imm];
+        EX_MEM.ALUOutput = EX_MEM.A - EX_MEM.imm;
     }
     if (strncmp(inst_name, "xor",sizeof(char)*7) == 0)
     {
@@ -513,19 +462,19 @@ void EX()
     }
     if (strncmp(inst_name, "or",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] | NEXT_STATE.REGS[EX_MEM.imm];
+        EX_MEM.ALUOutput = EX_MEM.A | EX_MEM.imm;
     }
     if (strncmp(inst_name, "and",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] & NEXT_STATE.REGS[EX_MEM.imm];
+        EX_MEM.ALUOutput = EX_MEM.A & EX_MEM.imm;
     }
     if (strncmp(inst_name, "sll",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] << NEXT_STATE.REGS[EX_MEM.imm];
+        EX_MEM.ALUOutput = EX_MEM.A << EX_MEM.imm;
     }
     if (strncmp(inst_name, "srl",sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] >> NEXT_STATE.REGS[EX_MEM.imm];
+        EX_MEM.ALUOutput = EX_MEM.A >> EX_MEM.imm;
     }
     if (strncmp(inst_name, "sra",sizeof(char)*7) == 0)
     {
@@ -542,7 +491,7 @@ void EX()
     // I Type Instructions
     if (strncmp(inst_name, "addi", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "xori", sizeof(char)*7) == 0)
     {
@@ -550,19 +499,19 @@ void EX()
     }
     if (strncmp(inst_name, "ori", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] | EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A | EX_MEM.imm;
     }
     if (strncmp(inst_name, "andi", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] & EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A & EX_MEM.imm;
     }
     if (strncmp(inst_name, "slli", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] << EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A << EX_MEM.imm;
     }
     if (strncmp(inst_name, "srli", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] >> EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A >> EX_MEM.imm;
     }
     if (strncmp(inst_name, "srai", sizeof(char)*7) == 0)
     {
@@ -578,15 +527,15 @@ void EX()
     }
     if (strncmp(inst_name, "lb", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "lh", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "lw", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "lbu", sizeof(char)*7) == 0)
     {
@@ -599,15 +548,15 @@ void EX()
     // S Type Instructions
     if (strncmp(inst_name, "sb", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "sh", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     if (strncmp(inst_name, "sw", sizeof(char)*7) == 0)
     {
-        EX_MEM.ALUOutput = NEXT_STATE.REGS[EX_MEM.A] + EX_MEM.imm;
+        EX_MEM.ALUOutput = EX_MEM.A + EX_MEM.imm;
     }
     // B Type Instructions
     if (strncmp(inst_name, "beq", sizeof(char)*7) == 0)
@@ -856,55 +805,10 @@ void B_Decode(uint32_t imm4_11, uint32_t f3, uint32_t imm12_5) {
 	}
 }
 
-void handle_hazard(){
-	if(ENABLE_FORWARDING == 0){
-		CURRENT_STATE.PC -= 4;
-		INSTRUCTION_COUNT--;
-		nop(&ID_EX);
-	}
-	if(ENABLE_FORWARDING == 1){
-		if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.A)){
-			
-			printf("FORWARD 1\n");
-			ID_EX.forwardData = EX_MEM.ALUoutput;
-			//ForwardA = 10
-		}
-		
-		if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.imm)){
-
-			printf("FORWARD 2\n");
-			ID_EX.forwardData = EX_MEM.ALUoutput;
-			//ForwardB = 10
-		}
-		
-		if (MEM_WB.RegWrite & (MEM_WB.B != 0) 		& 
-				!(EX_MEM.RegWrite & (EX_MEM.B != 0) &
-				(EX_MEM.B = ID_EX.A)) 				&
-				(MEM_WB.B = ID_EX.A) 				){
-			
-			printf("FORWARD 3\n");
-			//ForwardA = 01
-		}
-		if (MEM_WB.RegWrite & (MEM_WB.B != 0) 		& 
-				!(EX_MEM.RegWrite & (EX_MEM.B != 0) &
-				(EX_MEM.B = ID_EX.imm)) 			&
-				(MEM_WB.B = ID_EX.imm)				){
-			
-			printf("FORWARD 4\n");
-			//ForwardB = 01
-		}
-	}
-}
-
 void ID()
 {
-	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 2 || INSTRUCTION_COUNT <= 1) return;
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 2 || INSTRUCTION_COUNT <= 1) return;
 	ID_EX = IF_ID;
-
-	if(ID_EX.PC == 0){
-		return;
-	}
-
 	ID_EX.instName = malloc(sizeof(char) * 7);
 	if(!ID_EX.instName){
 		RUN_FLAG = FALSE;
@@ -916,18 +820,16 @@ void ID()
 	uint32_t rd, f3, rs1, rs2, f7, imm, imm4, imm11;
 
 	switch(opcode){
-		case 0:
-			break;
 		case 51:		//R-type
 			rd = (instruction << 20) >> 27;
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			f7 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.imm = rs2;
+			ID_EX.A = NEXT_STATE.REGS[rs1];
+			ID_EX.imm = NEXT_STATE.REGS[rs2];
 			ID_EX.B = rd;
-			R_Decode(f3, f7);
+			R_Decode(f3, f7);	
 			break;		
 		case 19:		//I
 			rd = (instruction << 20) >> 27;
@@ -935,7 +837,7 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20;
 			imm11 = instruction >> 25;
-			rs1;
+			ID_EX.A = NEXT_STATE.REGS[rs1];
 			ID_EX.B = rd;
 			ID_EX.imm = imm;
 			Iimm_Decode(f3, imm);
@@ -945,7 +847,7 @@ void ID()
 			f3 = (instruction << 17) >> 29;
 			rs1 = (instruction << 12) >> 27;
 			imm = instruction >> 20; 
-			ID_EX.A = rs1;
+			ID_EX.A = NEXT_STATE.REGS[rs1];
 			ID_EX.B = rd;
 			ID_EX.imm = imm;		
 			ILoad_Decode(f3);
@@ -956,8 +858,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = NEXT_STATE.REGS[rs1];
+			ID_EX.B = NEXT_STATE.REGS[rs2];
 			S_Decode(imm4, f3, imm11);
 			break;
 		case 99:		//B -- needs some weird shit technically but nah fam
@@ -966,8 +868,8 @@ void ID()
 			rs1 = (instruction << 12) >> 27;
 			rs2 = (instruction << 7) >> 27;
 			imm11 = instruction >> 25;
-			ID_EX.A = rs1;
-			ID_EX.B = rs2;
+			ID_EX.A = NEXT_STATE.REGS[rs1];
+			ID_EX.B = NEXT_STATE.REGS[rs2];
 			B_Decode(imm4, f3, imm11);
 			break;
 		case 111:		//jal
@@ -979,26 +881,25 @@ void ID()
 			return;
 			break;
 	}
-	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B == ID_EX.A))
+	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.A))
 	{
-		//printf("DATA HAZARD 1\n");
-		handle_hazard();
-
+		IF_ID.PC -= 4;
+		nop(ID_EX);
 	}
-	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B == ID_EX.imm) & (opcode != 19))
+	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.imm))
 	{
-		//printf("DATA HAZARD 2\n");
-		handle_hazard();
+		IF_ID.PC -= 4;
+		nop(ID_EX);
 	}
-	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B == ID_EX.A))
+	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B = ID_EX.A))
 	{
-		//printf("DATA HAZARD 3\n");
-		handle_hazard();
+		IF_ID.PC -= 4;
+		nop(ID_EX);
 	}
-	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B == ID_EX.imm) & (opcode != 19))
+	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B = ID_EX.imm))
 	{
-		//printf("DATA HAZARD 4\n");
-		handle_hazard();
+		IF_ID.PC -= 4;
+		nop(ID_EX);
 	}
 }
 
@@ -1007,25 +908,13 @@ void ID()
 /************************************************************/
 void IF()
 {
-	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 1) return;
-	if(INSTRUCTION_COUNT >= PROGRAM_SIZE){
-		
-		nop(&IF_ID);
-
-		if((IF_ID.PC == 0) & (ID_EX.PC == 0) & (EX_MEM.PC == 0) & (MEM_WB.PC == 0)){
-			RUN_FLAG = FALSE;
-		}
-
-	}else{
-		uint32_t addr = CURRENT_STATE.PC;
-		IF_ID.PC = addr;
-		uint32_t instruction = mem_read_32(addr);
-		IF_ID.IR = instruction;
-		IF_ID.RegWrite = 0;
-		IF_ID.forwardFlag = 0;
-		NEXT_STATE.PC = CURRENT_STATE.PC += 4;
-		INSTRUCTION_COUNT++;
-	}
+	if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 1) return;
+	uint32_t addr = CURRENT_STATE.PC;
+	IF_ID.PC = addr;
+	uint32_t instruction = mem_read_32(addr);
+	IF_ID.IR = instruction;
+	IF_ID.RegWrite = 0;
+	NEXT_STATE.PC += 4;
 }
 
 
@@ -1038,14 +927,6 @@ void initialize() {
 	CURRENT_STATE.PC = MEM_TEXT_BEGIN;
 	NEXT_STATE = CURRENT_STATE;
 	RUN_FLAG = TRUE;
-	IF_ID.instName = NULL;
-	ID_EX.instName = NULL;
-	EX_MEM.instName = NULL;
-	MEM_WB.instName = NULL;
-	IF_ID.PC = 0;
-	ID_EX.PC = 0;
-	EX_MEM.PC = 0;
-	MEM_WB.PC = 0;
 }
 
 /************************************************************/
@@ -1338,28 +1219,17 @@ void show_pipeline(){
 	printf("Current PC:\t\t%d\n", NEXT_STATE.PC);
 	printf("IF/ID.IR:\t\t%x\n", IF_ID.IR);
 	printf("IF/ID.PC:\t\t%d\n\n", IF_ID.PC);
-
 	printf("ID/EX.IR:\t\t%x\n", ID_EX.IR);
 	printf("ID/EX.A:\t\t%d\n", ID_EX.A);
 	printf("ID/EX.B:\t\t%d\n", ID_EX.B);
-	printf("ID/EX.imm:\t\t%d\n", ID_EX.imm);
-	printf("ID/EX.ALUOut:\t\t%d\n", ID_EX.ALUOutput);
-	printf("ID/EX.PC:\t\t%d\n\n", ID_EX.PC);
-
+	printf("ID/EX.ALUOut:\t\t%d\n\n", ID_EX.ALUOutput);
 	printf("EX/MEM.IR:\t\t%x\n", EX_MEM.IR);
 	printf("EX/MEM.A:\t\t%d\n", EX_MEM.A);
 	printf("EX/MEM.B:\t\t%d\n", EX_MEM.B);
-	printf("EX/MEM.imm:\t\t%d\n", EX_MEM.imm);
-	printf("EX/MEM.ALUOut:\t\t%d\n", EX_MEM.ALUOutput);
-	printf("EX/MEM.PC:\t\t%d\n\n", EX_MEM.PC);
-
+	printf("EX/MEM.ALUOut:\t\t%d\n\n", EX_MEM.ALUOutput);
 	printf("MEM/WB.IR:\t\t%x\n", MEM_WB.IR);
-	printf("MEM/WB.A:\t\t%d\n", MEM_WB.A);
-	printf("MEM/WB.B:\t\t%d\n", MEM_WB.B);
-	printf("MEM/WB.imm:\t\t%d\n", MEM_WB.imm);
 	printf("MEM/WB.ALUOut:\t\t%d\n", MEM_WB.ALUOutput);
-	printf("MEM/WB.LMD:\t\t%d\n", MEM_WB.LMD);
-	printf("MEM/WB.PC:\t\t%d\n\n", MEM_WB.PC);
+	printf("MEM/WB.LMD:\t\t%d\n\n", MEM_WB.LMD);
 }
 
 /***************************************************************/

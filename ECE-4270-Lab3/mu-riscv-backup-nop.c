@@ -336,17 +336,17 @@ void handle_pipeline()
 	/*INSTRUCTION_COUNT should be incremented when instruction is done*/
 	/*Since we do not have branch/jump instructions, INSTRUCTION_COUNT should be incremented in WB stage */
 
-	//printf("START\n");
+	printf("START\n");
 	WB();
-	//printf("WB DONE, RUN FLAG = %d\n", RUN_FLAG);
+	printf("WB DONE, RUN FLAG = %d\n", RUN_FLAG);
 	MEM();
-	//printf("MEM DONE, RUN FLAG = %d\n", RUN_FLAG);
+	printf("MEM DONE, RUN FLAG = %d\n", RUN_FLAG);
 	EX();
-	//printf("EX DONE, RUN FLAG = %d\n", RUN_FLAG);
+	printf("EX DONE, RUN FLAG = %d\n", RUN_FLAG);
 	ID();
-	//printf("ID DONE, RUN FLAG = %d\n", RUN_FLAG);
+	printf("ID DONE, RUN FLAG = %d\n", RUN_FLAG);
 	IF();
-	//printf("IF DONE, RUN FLAG = %d\n\n", RUN_FLAG);
+	printf("IF DONE, RUN FLAG = %d\n\n", RUN_FLAG);
 }
 
 /************************************************************/
@@ -483,19 +483,6 @@ void EX()
 
 	if(EX_MEM.instName == NULL){
 		return;
-	}
-
-	//Sets the inputs for the ALU.
-	//fowardFlag = 0: sets inputs to normal A and imm registers.
-	//forwardFlag = 1: Sets the inputs to the forward value.
-	if(forwardFlag == 0){
-
-	}else
-	if(forwardFlag == 1){
-
-	}else{
-		prinf("EX forwardFlag ERROR\n");
-		RUN_FLAG = 0;
 	}
 
     // R Type Instructions
@@ -856,46 +843,6 @@ void B_Decode(uint32_t imm4_11, uint32_t f3, uint32_t imm12_5) {
 	}
 }
 
-void handle_hazard(){
-	if(ENABLE_FORWARDING == 0){
-		CURRENT_STATE.PC -= 4;
-		INSTRUCTION_COUNT--;
-		nop(&ID_EX);
-	}
-	if(ENABLE_FORWARDING == 1){
-		if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.A)){
-			
-			printf("FORWARD 1\n");
-			ID_EX.forwardData = EX_MEM.ALUoutput;
-			//ForwardA = 10
-		}
-		
-		if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B = ID_EX.imm)){
-
-			printf("FORWARD 2\n");
-			ID_EX.forwardData = EX_MEM.ALUoutput;
-			//ForwardB = 10
-		}
-		
-		if (MEM_WB.RegWrite & (MEM_WB.B != 0) 		& 
-				!(EX_MEM.RegWrite & (EX_MEM.B != 0) &
-				(EX_MEM.B = ID_EX.A)) 				&
-				(MEM_WB.B = ID_EX.A) 				){
-			
-			printf("FORWARD 3\n");
-			//ForwardA = 01
-		}
-		if (MEM_WB.RegWrite & (MEM_WB.B != 0) 		& 
-				!(EX_MEM.RegWrite & (EX_MEM.B != 0) &
-				(EX_MEM.B = ID_EX.imm)) 			&
-				(MEM_WB.B = ID_EX.imm)				){
-			
-			printf("FORWARD 4\n");
-			//ForwardB = 01
-		}
-	}
-}
-
 void ID()
 {
 	//if(INSTRUCTION_COUNT >= PROGRAM_SIZE + 2 || INSTRUCTION_COUNT <= 1) return;
@@ -981,24 +928,32 @@ void ID()
 	}
 	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B == ID_EX.A))
 	{
-		//printf("DATA HAZARD 1\n");
-		handle_hazard();
+		printf("DATA HAZARD 1\n");
+		CURRENT_STATE.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 
 	}
 	if (EX_MEM.RegWrite & (EX_MEM.B != 0) & (EX_MEM.B == ID_EX.imm) & (opcode != 19))
 	{
-		//printf("DATA HAZARD 2\n");
-		handle_hazard();
+		printf("DATA HAZARD 2\n");
+		CURRENT_STATE.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 	}
 	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B == ID_EX.A))
 	{
-		//printf("DATA HAZARD 3\n");
-		handle_hazard();
+		printf("DATA HAZARD 3\n");
+		CURRENT_STATE.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 	}
 	if (MEM_WB.RegWrite & (MEM_WB.B != 0) & (MEM_WB.B == ID_EX.imm) & (opcode != 19))
 	{
-		//printf("DATA HAZARD 4\n");
-		handle_hazard();
+		printf("DATA HAZARD 4\n");
+		CURRENT_STATE.PC -= 4;
+		INSTRUCTION_COUNT--;
+		nop(&ID_EX);
 	}
 }
 
@@ -1013,6 +968,7 @@ void IF()
 		nop(&IF_ID);
 
 		if((IF_ID.PC == 0) & (ID_EX.PC == 0) & (EX_MEM.PC == 0) & (MEM_WB.PC == 0)){
+			printf("IF END PROG\n");
 			RUN_FLAG = FALSE;
 		}
 
@@ -1022,7 +978,6 @@ void IF()
 		uint32_t instruction = mem_read_32(addr);
 		IF_ID.IR = instruction;
 		IF_ID.RegWrite = 0;
-		IF_ID.forwardFlag = 0;
 		NEXT_STATE.PC = CURRENT_STATE.PC += 4;
 		INSTRUCTION_COUNT++;
 	}
