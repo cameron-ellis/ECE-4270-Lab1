@@ -53,10 +53,12 @@ typedef struct CPU_Pipeline_Reg_Struct{
 	uint32_t imm;
 	uint32_t ALUOutput;
 	uint32_t LMD;
-	char * instName;
-	uint8_t RegWrite;
-	int forwardFlag;
-	uint32_t forwardData;
+	char * instName;			//Holds the instruction to be executed.
+	uint8_t RegWrite;			//
+	int forwardExFlag;
+	int forwardMemFlag;
+	uint32_t forwardExData;
+	uint32_t forwardMemData;
 } CPU_Pipeline_Reg;
 
 /***************************************************************/
