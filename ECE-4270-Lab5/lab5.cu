@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-__global__ void square(float *d_out, float *d_a, float * d_b){
+__global__ void add_matrix(float *d_out, float *d_a, float * d_b){
 	int idx = threadIdx.x;
 	float a = d_a[idx];
 	float b = d_b[idx];
@@ -42,7 +42,7 @@ int main(int argc, char ** argv){
 	cudaMemcpy(d_in, h_in, ARRAY_BYTES, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_in2, h_in2, ARRAY_BYTES, cudaMemcpyHostToDevice);
 
-	square<<<1, ARRAY_SIZE>>>(d_out, d_in, d_in2);
+	add_matrix<<<1, ARRAY_SIZE>>>(d_out, d_in, d_in2);
 
 	cudaMemcpy(h_out, d_out, ARRAY_BYTES, cudaMemcpyDeviceToHost);
 
